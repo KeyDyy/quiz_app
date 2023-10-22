@@ -12,7 +12,7 @@ type Props = {};
 
 const AIQuizBuilder = (props: Props) => {
   return (
-    <div className="flex flex-col mt-12 m-6">
+    <div className="flex flex-col mt-12 m-6 h-max">
       <Card className="border p-16 bg-gray-200 rounded-3xl shadow-lg">
         <CardHeader>
           <div>
