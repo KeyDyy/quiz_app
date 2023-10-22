@@ -5,10 +5,12 @@ import Navbar from "@/components/ui/Navbar";
 import Footer from "@/components/ui/Footer";
 import Head from "next/head";
 import { authOptions } from '../../pages/api/auth/[...nextauth]';
-import { getServerSession } from 'next-auth'
+import { getServerSession } from 'next-auth';
 import './globals.css'
 import { Inter } from 'next/font/google'
 import SessionProvider from './SessionProvider';
+import { Session } from 'next-auth';
+
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -17,6 +19,10 @@ export const metadata: Metadata = {
   description: "Quiz_app with AI's questions!",
 };
 
+type Props = {
+  children: React.ReactNode;
+  session: Session | null;
+}
 
 export default async function RootLayout({
   children,

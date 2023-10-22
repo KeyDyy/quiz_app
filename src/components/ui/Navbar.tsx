@@ -1,6 +1,7 @@
 import Link from "next/link";
 import React from "react";
 
+
 const Navbar = async () => {
   return (
     <div className="sticky inset-x-0 top-0 bg-white dark:bg-gray-950 z-[20] h-fit border-b border-zinc-300" >
