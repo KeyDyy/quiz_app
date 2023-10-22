@@ -12,7 +12,7 @@ export default function Home() {
   };
 
   return (
-    <div className="bg-gray-100 dark-bg-gray-900 min-h-screen flex justify-center w-full p-2">
+    <div className="bg-gray-100 dark-bg-gray-900 flex justify-center w-full p-2">
       <div className="flex flex-col">
         <div className="flex flex-col">
           {[

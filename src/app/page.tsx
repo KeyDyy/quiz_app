@@ -12,9 +12,9 @@ export default function Home() {
   });
   return (
     
-    <div className="bg-gray-100 dark:bg-gray-900 min-h-screen flex justify-center">
+    <div className="bg-gray-100 dark:bg-gray-900 flex justify-center">
       
-      <main className="max-w-8xl mx-auto p-7">
+      <main className="max-w-8xl mx-auto p-7 ">
         <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {[
             "Stwórz Quiz za pomocą AI",

@@ -8,8 +8,8 @@ export default function Signin() {
   const [password, setPassword] = useState("");
   const router = useRouter();
   return (
-    <div className="min-h-screen bg-gray-700 justify-center">
-      <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
+    <div className="h-screen bg-gray-700 justify-center">
+      <div className="flex flex-1 flex-col justify-center px-6 py-12 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
           <img
             className="mx-auto h-10 w-auto"
