@@ -3,14 +3,18 @@ import "./globals.css";
 import type { Metadata } from "next";
 import Navbar from "@/components/ui/Navbar";
 import Footer from "@/components/ui/Footer";
-import Head from "next/head";
-import { authOptions } from '../../pages/api/auth/[...nextauth]';
-import { getServerSession } from 'next-auth';
-import './globals.css'
 import { Inter } from 'next/font/google'
-import SessionProvider from './SessionProvider';
-import { Session } from 'next-auth';
 
+//import { Figtree } from 'next/font/google'
+
+//import ToasterProvider from '../providers/ToasterProvider'
+import UserProvider from '../../providers/UserProvider'
+import ModalProvider from '../../providers/ModalProvider'
+import SupabaseProvider from '../../providers/SupabaseProvider'
+
+
+import Header from '@/components/Header'
+import './globals.css'
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,17 +23,14 @@ export const metadata: Metadata = {
   description: "Quiz_app with AI's questions!",
 };
 
-type Props = {
-  children: React.ReactNode;
-  session: Session | null;
-}
-
 export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getServerSession(authOptions);
+  // const products = await getActiveProductsWithPrices();
+  // const userSongs = await getSongsByUserId();
+
   return (
     <html lang="en">
       <link
@@ -39,12 +40,23 @@ export default async function RootLayout({
         href="/favicon-32x32.png"
       />
       <body className={cn(inter.className, "antialiased")}>
-      <SessionProvider session={session}>
-        <Navbar />
-        {children}
-        <Footer />
-        </SessionProvider>
+        {/* <ToasterProvider /> */}
+        <SupabaseProvider>
+          <UserProvider>
+            <ModalProvider />
+
+            <Navbar />
+            {children}
+            <Footer />
+
+          </UserProvider>
+        </SupabaseProvider>
       </body>
     </html>
   );
 }
+
+
+
+
+
