@@ -15,6 +15,7 @@ import SupabaseProvider from '../../providers/SupabaseProvider'
 
 import Header from '@/components/Header'
 import './globals.css'
+import Head from "next/head";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,25 +29,29 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // const products = await getActiveProductsWithPrices();
-  // const userSongs = await getSongsByUserId();
 
   return (
     <html lang="en">
-      <link
-        rel="icon"
-        type="image/png"
-        sizes="32x32"
-        href="/favicon-32x32.png"
-      />
-      <body className={cn(inter.className, "antialiased")}>
+      <Head>
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="32x32"
+          href="/favicon-32x32.png"
+        />
+      </Head>
+      <body
+        className={cn(inter.className, "antialiased")}
+        style={{ display: "flex", minHeight: "100vh", flexDirection: "column" }}
+      >
         {/* <ToasterProvider /> */}
         <SupabaseProvider>
           <UserProvider>
             <ModalProvider />
 
             <Navbar />
-            {children}
+
+            <div className="flex-1 bg-gray-100">{children}</div>
             <Footer />
 
           </UserProvider>
