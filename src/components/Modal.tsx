@@ -48,6 +48,7 @@ const Modal: React.FC<ModalProps> = ({
             bg-neutral-800 
             p-[25px] 
             focus:outline-none
+            overflow-y-auto
           ">
                     <Dialog.Title
                         className="
