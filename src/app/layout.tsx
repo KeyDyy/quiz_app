@@ -3,18 +3,17 @@ import "./globals.css";
 import type { Metadata } from "next";
 import Navbar from "@/components/ui/Navbar";
 import Footer from "@/components/ui/Footer";
-import { Inter } from 'next/font/google'
+import { Inter } from "next/font/google";
 
 //import { Figtree } from 'next/font/google'
 
 //import ToasterProvider from '../providers/ToasterProvider'
-import UserProvider from '../../providers/UserProvider'
-import ModalProvider from '../../providers/ModalProvider'
-import SupabaseProvider from '../../providers/SupabaseProvider'
+import UserProvider from "../../providers/UserProvider";
+import ModalProvider from "../../providers/ModalProvider";
+import SupabaseProvider from "../../providers/SupabaseProvider";
 
-
-import Header from '@/components/Header'
-import './globals.css'
+import Header from "@/components/Header";
+import "./globals.css";
 import Head from "next/head";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -29,7 +28,6 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-
   return (
     <html lang="en">
       <Head>
@@ -48,20 +46,12 @@ export default async function RootLayout({
         <SupabaseProvider>
           <UserProvider>
             <ModalProvider />
-
             <Navbar />
-
             <div className="flex-1 bg-gray-100">{children}</div>
             <Footer />
-
           </UserProvider>
         </SupabaseProvider>
       </body>
     </html>
   );
 }
-
-
-
-
-
