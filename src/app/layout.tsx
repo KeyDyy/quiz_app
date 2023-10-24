@@ -48,6 +48,9 @@ export default async function RootLayout({
             <ModalProvider />
             <Navbar />
             <div className="flex-1 bg-gray-100">{children}</div>
+
+
+
             <Footer />
           </UserProvider>
         </SupabaseProvider>

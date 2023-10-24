@@ -51,9 +51,9 @@ const Modal: React.FC<ModalProps> = ({
             bg-neutral-100 
             p-[25px] 
             focus:outline-none
+            
             overflow-y-auto
-          "
-        >
+          ">
           <Dialog.Title
             className="
               text-xl 
