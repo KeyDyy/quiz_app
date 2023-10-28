@@ -25,35 +25,31 @@ const Modal: React.FC<ModalProps> = ({
             backdrop-blur-sm
             fixed 
             inset-0
+            
           "
         />
         <Dialog.Content
           className="
-          
-          shadow-md
-            fixed 
-            z-10
-            drop-shadow-md 
-            border 
-            border-neutral-700 
-            top-[50%] 
-            left-[50%] 
-            max-h-full 
-            h-full 
-            md:h-auto 
-            md:max-h-[85vh] 
-            w-full 
-            md:w-[90vw] 
-            md:max-w-[450px]
-            translate-x-[-50%] 
-            translate-y-[-50%] 
-            rounded-md 
-            bg-neutral-100 
-            p-[25px] 
-            focus:outline-none
-            
-            overflow-y-auto
-          ">
+          fixed
+          inset-0
+          lg:mb-16
+          lg:mt-24
+          rounded-lg
+          z-10
+          bg-gray-100
+          p-8
+          pt-24
+          sm:p-24
+          lg:pt-16
+          lg:p-12
+          lg:max-w-[500px]
+          min-h-[250px]
+          lg:h-auto
+          mx-auto
+          focus:outline-none
+          overflow-y-auto
+          "
+        >
           <Dialog.Title
             className="
               text-xl 
@@ -79,18 +75,20 @@ const Modal: React.FC<ModalProps> = ({
             <button
               className="
                 text-neutral-400 
-                hover:text-white 
+                hover:text-black 
                 absolute 
-                top-[10px] 
-                right-[10px] 
-                inline-flex 
-                h-[25px] 
-                w-[25px] 
-                appearance-none 
-                items-center 
-                justify-center 
-                rounded-full 
-                focus:outline-none
+                
+                lg:top-[10px] 
+                lg:right-[10px] 
+                lg:inline-flex 
+                lg:h-[25px] 
+                lg:w-[25px] 
+                lg:items-center 
+                lg:justify-center 
+              
+                top-[100px]
+                right-[32px]
+                sm:right-[96px]
               "
               aria-label="Close"
             >
