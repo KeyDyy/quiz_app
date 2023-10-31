@@ -14,8 +14,11 @@ interface HeaderProps {
   className?: string;
 }
 
+function isScreenSizeGreaterThan800() {
+  return window.innerWidth > 800;
+}
+
 const Navbar = ({}) => {
-  //const player = usePlayer();
   const router = useRouter();
   const authModal = useAuthModal();
 
@@ -44,7 +47,9 @@ const Navbar = ({}) => {
 
         {user ? (
           <div className="flex gap-x-4 items-center">
-            {user.email}
+            {isScreenSizeGreaterThan800() && (
+              <div className="email">{user.email}</div>
+            )}
             <Button
               onClick={() => router.push("/account")}
               className="bg-white"
