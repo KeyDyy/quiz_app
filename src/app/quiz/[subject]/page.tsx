@@ -1,11 +1,35 @@
 "use client";
-
+import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { getQuizzesData } from "@/lib/fetching";
+import { useState } from "react";
+import { useEffect } from "react";
 import "./index.css";
+
+interface QuizData {
+  logo: string;
+  title: string;
+}
 
 export default function Home() {
   const router = useRouter();
+  const pathName = usePathname();
+  const quizPathName = pathName.split("/").pop();
+
+  const [data, setData] = useState<QuizData[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const quizData = await getQuizzesData();
+        setData(quizData);
+      } catch (error) {
+        console.error("Błąd pobierania danych", error);
+      }
+    };
+    fetchData();
+  }, []);
 
   const handleButtonClick = (path: string) => {
     router.push(path);
@@ -34,7 +58,7 @@ export default function Home() {
               }}
             >
               <span
-                className="z-10 relative font-bold font-sans text-gray-200"
+                className="z-10 relative font-bold font-sans text-gray-100"
                 style={{
                   WebkitTextStroke: "1px black",
                 }}
@@ -44,7 +68,7 @@ export default function Home() {
               <span
                 className="absolute top-0 left-0 w-full h-full z-0"
                 style={{
-                  backgroundImage: `url('/images/AI.png')`,
+                  backgroundImage: `url('/images/${quizPathName}.png')`,
                   backgroundPosition: "center",
                   backgroundSize: "cover",
                   WebkitFilter: "blur(2px)",
