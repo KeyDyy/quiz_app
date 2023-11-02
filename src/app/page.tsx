@@ -4,7 +4,7 @@ import { useUser } from "../../hooks/useUser";
 import React from "react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import supabase from "@/lib/supabase";
+//import { supabase } from "@/lib/supabase";
 import { getQuizzesData } from "@/lib/fetching";
 
 interface QuizData {
