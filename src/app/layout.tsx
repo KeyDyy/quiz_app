@@ -11,8 +11,9 @@ import { Inter } from "next/font/google";
 import UserProvider from "../../providers/UserProvider";
 import ModalProvider from "../../providers/ModalProvider";
 import SupabaseProvider from "../../providers/SupabaseProvider";
+import FriendList from '@/components/FriendList';
+import { SidebarProvider } from '../../providers/SidebarContext';
 
-import Header from "@/components/Header";
 import "./globals.css";
 import Head from "next/head";
 
@@ -46,12 +47,15 @@ export default async function RootLayout({
         <SupabaseProvider>
           <UserProvider>
             <ModalProvider />
-            <Navbar />
-            <div className="flex-1 bg-gray-100">{children}</div>
+
+            <SidebarProvider>
+              <Navbar />
+              <FriendList />
+              <div className="flex-1 bg-gray-100">{children}</div>
 
 
-
-            <Footer />
+              <Footer />
+            </SidebarProvider>
           </UserProvider>
         </SupabaseProvider>
       </body>

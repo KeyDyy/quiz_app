@@ -8,22 +8,19 @@ import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import { useUser } from "../../../hooks/useUser";
 import { toast } from "react-hot-toast";
 import { FaUserAlt } from "react-icons/fa";
-
-interface HeaderProps {
-  children: React.ReactNode;
-  className?: string;
-}
+import { useSidebar } from '../../../providers/SidebarContext';
 
 function isScreenSizeGreaterThan800() {
   return window.innerWidth > 800;
 }
 
-const Navbar = ({}) => {
+const Navbar = () => {
   const router = useRouter();
   const authModal = useAuthModal();
 
   const supabaseClient = useSupabaseClient();
   const { user } = useUser();
+  const { toggleSidebar } = useSidebar();
 
   const handleLogout = async () => {
     const { error } = await supabaseClient.auth.signOut();
@@ -35,7 +32,12 @@ const Navbar = ({}) => {
     }
   };
 
+  const handleToggleSidebar = () => {
+    toggleSidebar();
+  };
+
   return (
+
     <div className="sticky inset-x-0 top-0 bg-white dark:bg-gray-950 z-[20] h-fit border-b border-zinc-300">
       <div className="flex items-center justify-between py-2 px-8 mx-auto max-w-7xl">
         <button
@@ -61,6 +63,10 @@ const Navbar = ({}) => {
               className="bg-white rounded-lg border-2 border-b-4 border-r-4 border-black px-2 py-1 text-xl font-bold transition-all hover:-translate-y-[2px] md:block dark:border-white"
             >
               Logout
+            </Button>
+
+            <Button onClick={handleToggleSidebar} className="bg-white">
+              Open Sidebar
             </Button>
           </div>
         ) : (
