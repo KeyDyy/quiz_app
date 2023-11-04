@@ -107,3 +107,42 @@
 .small-button:hover {
     box-shadow: #121212 0 0 0 2px, transparent 0 0 0 0;
 }
+
+.options-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.options-button {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0;
+}
+
+.options-list {
+    display: none;
+    position: absolute;
+    z-index: 1;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    left: -250%;
+    /* Position to the left */
+}
+
+.options-list li {
+    padding: 8px;
+    cursor: pointer;
+}
+
+.options-list li:hover {
+    background-color: #f0f0f0;
+}
+
+.options-dropdown:hover .options-list {
+    display: block;
+}

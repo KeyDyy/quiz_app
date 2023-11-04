@@ -22,6 +22,7 @@ const FriendList = () => {
     const [showAccepted, setShowAccepted] = useState(true);
     const [showPending, setShowPending] = useState(false);
     const { showSidebar } = useSidebar();
+    const [showPendingOptions, setShowPendingOptions] = useState(false);
 
     useEffect(() => {
         if (user) {
@@ -180,14 +181,23 @@ const FriendList = () => {
                                             <div className="friend-info">
                                                 <p className="username">{friend.username}</p>
                                             </div>
-                                            <div className="button-container">
-                                                <button className="small-button" onClick={() => ignoreFriend(friend.userId)}>
-                                                    Remove
-                                                </button>
-                                                <button className="small-button" onClick={() => blockFriend(friend.userId)}>
-                                                    Block
-                                                </button>
+
+
+                                            <div className="options-dropdown">
+                                                <button className="options-button">...</button>
+                                                <ul className="options-list">
+                                                    <li>
+                                                        <button className="small-button" onClick={() => ignoreFriend(friend.userId)}>
+                                                            Remove
+                                                        </button>
+                                                        <button className="small-button" onClick={() => blockFriend(friend.userId)}>
+                                                            Block
+                                                        </button>
+                                                    </li>
+
+                                                </ul>
                                             </div>
+
                                         </li>
                                     ))}
                             </ul>
@@ -217,17 +227,23 @@ const FriendList = () => {
                                             <div className="friend-info">
                                                 <p className="username">{friend.username}</p>
                                             </div>
-                                            <div className="button-container">
-                                                <button className="small-button" onClick={() => acceptFriend(friend.userId)} disabled={friend.status === 'Accepted'}>
-                                                    Accept
-                                                </button>
-                                                <button className="small-button" onClick={() => ignoreFriend(friend.userId)} disabled={friend.status === 'Accepted'}>
-                                                    Ignore
-                                                </button>
-                                                {/* <button className="small-button" onClick={() => blockFriend(friend.userId)} disabled={friend.status === 'Accepted'}>
-                                        Block
-                                    </button> */}
+
+
+                                            <div className="options-dropdown">
+                                                <button className="options-button">...</button>
+                                                <ul className="options-list">
+                                                    <li>
+                                                        <button className="small-button" onClick={() => acceptFriend(friend.userId)} disabled={friend.status === 'Accepted'}>
+                                                            Accept
+                                                        </button>
+                                                        <button className="small-button" onClick={() => ignoreFriend(friend.userId)} disabled={friend.status === 'Accepted'}>
+                                                            Ignore
+                                                        </button>
+                                                    </li>
+
+                                                </ul>
                                             </div>
+
                                         </li>
                                     ))}
                             </ul>
