@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useUser } from '../../hooks/useUser';
 import { supabase } from '../lib/supabase';
 import '@/app/friends/index.css';
-import { SidebarProvider, useSidebar } from '../../providers/SidebarContext';
+import { useSidebar } from '../../providers/SidebarContext';
 
 interface Friend {
     user1: string;
@@ -20,7 +20,7 @@ const FriendList = () => {
     const { user } = useUser();
     const [friends, setFriends] = useState<Friend[]>([]);
     const [showAccepted, setShowAccepted] = useState(true);
-    const [showPending, setShowPending] = useState(true);
+    const [showPending, setShowPending] = useState(false);
     const { showSidebar } = useSidebar();
 
     useEffect(() => {
@@ -138,14 +138,8 @@ const FriendList = () => {
                 .eq('user2', user?.id);
 
 
-            const { error: error2 } = await supabase
-                .from('friends')
-                .update({ status: 'Accepted' })
-                .eq('user1', user?.id)
-                .eq('user2', friendId);
-
-            if (error1 || error2) {
-                console.error('Error blocking friend:', error1 || error2);
+            if (error1) {
+                console.error('Error accepting friend:', error1);
             } else {
                 // Update the UI by fetching the updated friend list
                 fetchFriends(user?.id || '');

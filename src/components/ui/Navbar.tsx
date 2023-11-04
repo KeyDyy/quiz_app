@@ -66,7 +66,7 @@ const Navbar = () => {
             </Button>
 
             <Button onClick={handleToggleSidebar} className="bg-white">
-              Open Sidebar
+              Friends
             </Button>
           </div>
         ) : (
