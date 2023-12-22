@@ -168,7 +168,7 @@ const FriendList = () => {
                                     onClick={() => setShowAccepted(!showAccepted)}
                                     className="toggle-accepted-button text-blue-500"
                                 >
-                                    {showAccepted ? 'Hide' : 'Show'} Accepted
+                                    {showAccepted ? 'Pokaż' : 'Ukryj'} Zaakceptowane
                                 </button>
                             </h3>
                             {showAccepted && (
@@ -192,10 +192,10 @@ const FriendList = () => {
                                                     <ul className="options-list hidden absolute z-10 bg-white border border-gray-300 list-none p-0 -left-10">
                                                         <li>
                                                             <button className="small-button p-2" onClick={() => ignoreFriend(friend.userId)}>
-                                                                Remove
+                                                                Usuń
                                                             </button>
                                                             <button className="small-button p-2" onClick={() => blockFriend(friend.userId)}>
-                                                                Block
+                                                                Zablokuj
                                                             </button>
                                                         </li>
                                                     </ul>
@@ -211,7 +211,7 @@ const FriendList = () => {
                                     onClick={() => setShowPending(!showPending)}
                                     className="toggle-pending-button text-blue-500"
                                 >
-                                    {showPending ? 'Hide' : 'Show'} Pending
+                                    {showPending ? 'Ukryj' : 'Pokaż'} Oczekujące
                                 </button>
                             </h3>
                             {showPending && (
@@ -235,10 +235,10 @@ const FriendList = () => {
                                                     <ul className="options-list hidden absolute z-10 bg-white border border-gray-300 list-none p-0 -left-10">
                                                         <li>
                                                             <button className="small-button p-2" onClick={() => acceptFriend(friend.userId)} disabled={friend.status === 'Accepted'}>
-                                                                Accept
+                                                                Akceptuj
                                                             </button>
                                                             <button className="small-button p-2" onClick={() => ignoreFriend(friend.userId)} disabled={friend.status === 'Accepted'}>
-                                                                Ignore
+                                                                Usuń
                                                             </button>
                                                         </li>
                                                     </ul>

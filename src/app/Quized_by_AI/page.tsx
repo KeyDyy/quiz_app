@@ -82,8 +82,8 @@ export default function Home() {
       <div className="flex flex-col mt-12 m-6 h-max">
         <Card>
           <CardHeader>
-            <CardTitle className="text-2xl font-bold">Quiz Creation</CardTitle>
-            <CardDescription>Choose a topic</CardDescription>
+            <CardTitle className="text-2xl font-bold">Quiz AI</CardTitle>
+            <CardDescription>Wybierz temat</CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
@@ -93,13 +93,13 @@ export default function Home() {
                   name="topic"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Topic</FormLabel>
+                      <FormLabel>Temat</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter a topic" {...field} />
+                        <Input placeholder="Wpisz temat" {...field} />
                       </FormControl>
                       <FormDescription>
-                        Please provide any topic you would like to be quizzed on
-                        here.
+                        Podaj tutaj temat, z którego chcesz utworzyć quiz.
+                        
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -107,7 +107,7 @@ export default function Home() {
                 />
 
                 <Button disabled={isPending} type="submit">
-                  Submit
+                  Potwierdź
                 </Button>
               </form>
             </Form>

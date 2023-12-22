@@ -104,26 +104,26 @@ const InviteFriend = () => {
             {user && (
 
                 <div className="fixed bottom-0 left-0 w-full bg-white shadow-md p-4 transform translate-y-full sm:translate-y-0">
-                    <h2 className="text-2xl font-bold">Find and Invite Friends by Username</h2>
+                    <h2 className="text-2xl font-bold">Zaproś użytkownika do Znajomych</h2>
                     <div className="flex items-center space-x-4">
                         <input
                             type="text"
                             value={username}
                             onChange={handleUsernameChange}
                             className="input w-2/3 p-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300"
-                            placeholder="Enter username or ID"
+                            placeholder="Wprowadź nazwę użytkownika"
                         />
-                        <button onClick={findUser} className="findButton bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring focus:border-blue-300">
-                            Find User
+                        <button onClick={findUser} className="findButton text-sm bg-blue-500 text-white py-1 px-1 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring focus:border-blue-300">
+                            Znajdź użytkownika
                         </button>
                     </div>
                     {foundUser && (
                         <div className="mt-4">
-                            <h3 className="text-xl font-bold">Found User</h3>
-                            <p>Username: {foundUser.username}</p>
-                            <p>Full Name: {foundUser.full_name || 'N/A'}</p>
+                            <h3 className="text-xl font-bold">Znaleziony użytkonik</h3>
+                            <p>Nazwa: {foundUser.username}</p>
+                            <p>Pełna nazwa: {foundUser.full_name || 'N/A'}</p>
                             <button onClick={inviteFriend} className="inviteButton bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring focus:border-blue-300">
-                                Invite to Friends
+                                Dodaj do Znajomych
                             </button>
                         </div>
                     )}

@@ -10,8 +10,8 @@ import { toast } from "react-hot-toast";
 import { FaUserAlt } from "react-icons/fa";
 import { useSidebar } from '../../../providers/SidebarContext';
 
-function isScreenSizeGreaterThan800() {
-  return window.innerWidth > 800;
+function isScreenSizeGreaterThan1000() {
+  return window.innerWidth > 1000;
 }
 
 const Navbar = () => {
@@ -49,7 +49,7 @@ const Navbar = () => {
 
         {user ? (
           <div className="flex gap-x-4 items-center">
-            {isScreenSizeGreaterThan800() && (
+            {isScreenSizeGreaterThan1000() && (
               <div className="email">{user.email}</div>
             )}
             <Button
@@ -62,11 +62,11 @@ const Navbar = () => {
               onClick={handleLogout}
               className="bg-white rounded-lg border-2 border-b-4 border-r-4 border-black px-2 py-1 text-xl font-bold transition-all hover:-translate-y-[2px] md:block dark:border-white"
             >
-              Logout
+              Wyloguj
             </Button>
 
             <Button onClick={handleToggleSidebar} className="bg-white">
-              Friends
+              Znajomi
             </Button>
           </div>
         ) : (
