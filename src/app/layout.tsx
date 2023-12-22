@@ -11,8 +11,9 @@ import { Inter } from "next/font/google";
 import UserProvider from "../../providers/UserProvider";
 import ModalProvider from "../../providers/ModalProvider";
 import SupabaseProvider from "../../providers/SupabaseProvider";
-import FriendList from '@/components/FriendList';
-import { SidebarProvider } from '../../providers/SidebarContext';
+import FriendList from "@/components/FriendList";
+import { SidebarProvider } from "../../providers/SidebarContext";
+
 
 import "./globals.css";
 import Head from "next/head";
@@ -44,6 +45,7 @@ export default async function RootLayout({
         style={{ display: "flex", minHeight: "100vh", flexDirection: "column" }}
       >
         {/* <ToasterProvider /> */}
+        
         <SupabaseProvider>
           <UserProvider>
             <ModalProvider />
@@ -53,9 +55,7 @@ export default async function RootLayout({
               <FriendList />
               <div className="flex-1 bg-gray-100">{children}</div>
 
-
-
-            <Footer />
+              <Footer />
             </SidebarProvider>
           </UserProvider>
         </SupabaseProvider>
@@ -63,4 +63,3 @@ export default async function RootLayout({
     </html>
   );
 }
-

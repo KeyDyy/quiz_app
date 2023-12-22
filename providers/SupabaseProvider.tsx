@@ -6,6 +6,9 @@ import { SessionContextProvider } from "@supabase/auth-helpers-react";
 
 import { Database } from "../types_db";
 
+import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
 interface SupabaseProviderProps {
     children: React.ReactNode;
 };
@@ -18,9 +21,11 @@ const SupabaseProvider: React.FC<SupabaseProviderProps> = ({
     );
 
     return (
+        <QueryClientProvider client={queryClient}>
         <SessionContextProvider supabaseClient={supabaseClient}>
             {children}
         </SessionContextProvider>
+        </QueryClientProvider>
     );
 }
 
