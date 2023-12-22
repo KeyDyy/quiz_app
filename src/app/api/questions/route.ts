@@ -13,16 +13,16 @@ export async function POST(req: Request, res: Response) {
     let questions: any;
     if (type === "mcq") {
       questions = await strict_output(
-        "You are a helpful AI that is able to generate mcq questions and answers, the length of each answer should not be more than 15 words, store all answers and questions and options in a JSON ARRAY",
+        "Jesteś pomocną sztuczną inteligencją, która jest w stanie generować pytania i odpowiedzi mcq, długość każdej odpowiedzi nie powinna przekraczać 15 słów, przechowywać wszystkie odpowiedzi, pytania i opcje w tablicy JSON",
         new Array(amount).fill(
-          `You are to generate a random hard mcq question about ${topic}`
+          `Masz wygenerować losowe trudne pytanie wielokrotnego wyboru (MCQ) na temat ${topic}`
         ),
         {
-          question: "question",
-          answer: "answer with max length of 15 words",
-          option1: "option1 with max length of 15 words",
-          option2: "option2 with max length of 15 words",
-          option3: "option3 with max length of 15 words",
+          question: "Pytanie",
+          answer: "odpowiedź na max 15 wyrazów",
+          option1: "opcja1 na max 15 wyrazów",
+          option2: "opcja2 na max 15 wyrazów",
+          option3: "opcja3 na max 15 wyrazów",
         }
       );
     }
