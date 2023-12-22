@@ -54,7 +54,8 @@ export default async function RootLayout({
               <div className="flex-1 bg-gray-100">{children}</div>
 
 
-              <Footer />
+
+            <Footer />
             </SidebarProvider>
           </UserProvider>
         </SupabaseProvider>
@@ -62,3 +63,4 @@ export default async function RootLayout({
     </html>
   );
 }
+

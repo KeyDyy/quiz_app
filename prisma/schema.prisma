@@ -471,3 +471,4 @@ enum subscription_status {
 
   @@schema("public")
 }
+

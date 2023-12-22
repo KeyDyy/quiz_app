@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { getQuizzesData } from "@/lib/fetching";
 import { useState } from "react";
 import { useEffect } from "react";
+import { useUserAuth } from "@/lib/userAuth";
 import "./index.css";
 
 interface QuizData {
@@ -19,6 +20,7 @@ export default function Home() {
 
   const [data, setData] = useState<QuizData[]>([]);
 
+  useUserAuth();
   useEffect(() => {
     const fetchData = async () => {
       try {
