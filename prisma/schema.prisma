@@ -9,6 +9,43 @@ datasource db {
   schemas  = ["auth", "public"]
 }
 
+enum GameType {
+  mcq
+
+  @@schema("public")
+}
+
+model Game {
+  id          String       @id @default(cuid())
+  userId      String       @db.Uuid
+  questions   Question[]
+  timeStarted DateTime
+  topic       String
+  timeEnded   DateTime?
+  gameType    GameType
+  user        public_users @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@schema("public")
+}
+
+model Question {
+  id       String @id @default(cuid())
+  question String
+  answer   String
+  gameId   String
+  options  Json? // for mcq questions
+
+  isCorrect    Boolean? // for mcq questions
+  questionType GameType
+  userAnswer   String?
+
+  game Game @relation(fields: [gameId], references: [id])
+
+  @@index([gameId])
+  @@schema("public")
+}
+
 model answers {
   answer_id    Int            @id @default(autoincrement())
   question_id  Int
@@ -112,6 +149,7 @@ model public_users {
   statistics           statistics[]
 
   users auth_users @relation(fields: [id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  Game  Game[]
 
   @@map("users")
   @@schema("public")

@@ -4,7 +4,7 @@ import { useUser } from '../../hooks/useUser';
 import { supabase } from '../lib/supabase';
 import '@/app/friends/index.css';
 import { useSidebar } from '../../providers/SidebarContext';
-
+import FriendInvite from './FriendSearch'
 interface Friend {
     user1: string;
     user2: any;
@@ -22,7 +22,7 @@ const FriendList = () => {
     const [showAccepted, setShowAccepted] = useState(true);
     const [showPending, setShowPending] = useState(false);
     const { showSidebar } = useSidebar();
-    const [showPendingOptions, setShowPendingOptions] = useState(false);
+    const { toggleSidebar } = useSidebar();
 
     useEffect(() => {
         if (user) {
@@ -150,108 +150,114 @@ const FriendList = () => {
         }
     };
 
+    const handleToggleSidebar = () => {
+        toggleSidebar();
+    };
 
     return (
-        <div>
+        <div className="relative">
             {user && (
-                <div className={`right-sidebar ${showSidebar ? 'show' : 'hide'}`}>
+                <div className={`right-sidebar ${showSidebar ? 'show' : 'hide'} sm:w-64 md:w-72 lg:w-96 xl:w-120 flex flex-col h-screen`}>
+                    <div className="flex-1 overflow-y-auto">
+                        <button onClick={handleToggleSidebar} className="bg-white">
+                            <h2 className="friend-list-header text-xl font-bold">Friend List</h2>
+                        </button>
+                        <div className="friend-section mt-5">
+                            <h3>
+                                <button
+                                    onClick={() => setShowAccepted(!showAccepted)}
+                                    className="toggle-accepted-button text-blue-500"
+                                >
+                                    {showAccepted ? 'Hide' : 'Show'} Accepted
+                                </button>
+                            </h3>
+                            {showAccepted && (
+                                <ul>
+                                    {/* Mapowanie przez zaakceptowanych przyjaciół i wyświetlanie ich */}
+                                    {friends
+                                        .filter((friend) => friend.status === 'Accepted')
+                                        .map((friend) => (
+                                            <li key={friend.userId} className="friend-list-item flex items-center justify-between mb-4 bg-gray-200 p-2 rounded w-full">
+                                                <img
+                                                    src={friend.avatar || 'https://t4.ftcdn.net/jpg/05/49/98/39/360_F_549983970_bRCkYfk0P6PP5fKbMhZMIb07mCJ6esXL.jpg'}
+                                                    alt="Avatar"
+                                                    className="avatar w-10 h-10 rounded-full mr-2"
+                                                />
+                                                <div className="friend-info flex-1">
+                                                    <p className="username font-bold">{friend.username}</p>
+                                                </div>
 
-                    <h2 className="friend-list-header">Friend List</h2>
-                    <div className="friend-section">
-                        <h3>
-                            {/* Accepted */}
-                            <button
-                                onClick={() => setShowAccepted(!showAccepted)} // Toggle visibility
-                                className="toggle-accepted-button"
-                            >
-                                {showAccepted ? 'Hide' : 'Show'} Accepted
-                            </button>
-                        </h3>
-                        {showAccepted && ( // Conditional rendering of the accepted list
-                            <ul>
-                                {friends
-                                    .filter((friend) => friend.status === 'Accepted')
-                                    .map((friend) => (
-                                        <li key={friend.userId} className="friend-list-item">
-                                            <img
-                                                src={friend.avatar || 'https://t4.ftcdn.net/jpg/05/49/98/39/360_F_549983970_bRCkYfk0P6PP5fKbMhZMIb07mCJ6esXL.jpg'}
-                                                alt="Avatar"
-                                                className="avatar"
-                                            />
-                                            <div className="friend-info">
-                                                <p className="username">{friend.username}</p>
-                                            </div>
+                                                <div className="options-dropdown relative">
+                                                    <button className="options-button text-2xl cursor-pointer">...</button>
+                                                    <ul className="options-list hidden absolute z-10 bg-white border border-gray-300 list-none p-0 -left-10">
+                                                        <li>
+                                                            <button className="small-button p-2" onClick={() => ignoreFriend(friend.userId)}>
+                                                                Remove
+                                                            </button>
+                                                            <button className="small-button p-2" onClick={() => blockFriend(friend.userId)}>
+                                                                Block
+                                                            </button>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </li>
+                                        ))}
+                                </ul>
+                            )}
+                        </div>
+                        <div className="friend-section mt-5">
+                            <h3>
+                                <button
+                                    onClick={() => setShowPending(!showPending)}
+                                    className="toggle-pending-button text-blue-500"
+                                >
+                                    {showPending ? 'Hide' : 'Show'} Pending
+                                </button>
+                            </h3>
+                            {showPending && (
+                                <ul>
+                                    {/* Mapowanie przez oczekujących przyjaciół i wyświetlanie ich */}
+                                    {friends
+                                        .filter((friend) => friend.status === 'Pending')
+                                        .map((friend) => (
+                                            <li key={friend.userId} className="friend-list-item flex items-center justify-between mb-4 bg-gray-200 p-2 rounded w-full">
+                                                <img
+                                                    src={friend.avatar || 'https://t4.ftcdn.net/jpg/05/49/98/39/360_F_549983970_bRCkYfk0P6PP5fKbMhZMIb07mCJ6esXL.jpg'}
+                                                    alt="Avatar"
+                                                    className="avatar w-10 h-10 rounded-full mr-2"
+                                                />
+                                                <div className="friend-info flex-1">
+                                                    <p className="username font-bold">{friend.username}</p>
+                                                </div>
 
-
-                                            <div className="options-dropdown">
-                                                <button className="options-button">...</button>
-                                                <ul className="options-list">
-                                                    <li>
-                                                        <button className="small-button" onClick={() => ignoreFriend(friend.userId)}>
-                                                            Remove
-                                                        </button>
-                                                        <button className="small-button" onClick={() => blockFriend(friend.userId)}>
-                                                            Block
-                                                        </button>
-                                                    </li>
-
-                                                </ul>
-                                            </div>
-
-                                        </li>
-                                    ))}
-                            </ul>
-                        )}
+                                                <div className="options-dropdown relative">
+                                                    <button className="options-button text-2xl cursor-pointer">...</button>
+                                                    <ul className="options-list hidden absolute z-10 bg-white border border-gray-300 list-none p-0 -left-10">
+                                                        <li>
+                                                            <button className="small-button p-2" onClick={() => acceptFriend(friend.userId)} disabled={friend.status === 'Accepted'}>
+                                                                Accept
+                                                            </button>
+                                                            <button className="small-button p-2" onClick={() => ignoreFriend(friend.userId)} disabled={friend.status === 'Accepted'}>
+                                                                Ignore
+                                                            </button>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </li>
+                                        ))}
+                                </ul>
+                            )}
+                        </div>
                     </div>
-                    <div className="friend-section">
-                        <h3>
-                            {/* Pending */}
-                            <button
-                                onClick={() => setShowPending(!showPending)} // Toggle visibility
-                                className="toggle-pending-button"
-                            >
-                                {showPending ? 'Hide' : 'Show'} Pending
-                            </button>
-                        </h3>
-                        {showPending && ( // Conditional rendering of the pending list
-                            <ul>
-                                {friends
-                                    .filter((friend) => friend.status === 'Pending')
-                                    .map((friend) => (
-                                        <li key={friend.userId} className="friend-list-item">
-                                            <img
-                                                src={friend.avatar || 'https://t4.ftcdn.net/jpg/05/49/98/39/360_F_549983970_bRCkYfk0P6PP5fKbMhZMIb07mCJ6esXL.jpg'}
-                                                alt="Avatar"
-                                                className="avatar"
-                                            />
-                                            <div className="friend-info">
-                                                <p className="username">{friend.username}</p>
-                                            </div>
+                    {showSidebar && (
 
+                        <FriendInvite />
 
-                                            <div className="options-dropdown">
-                                                <button className="options-button">...</button>
-                                                <ul className="options-list">
-                                                    <li>
-                                                        <button className="small-button" onClick={() => acceptFriend(friend.userId)} disabled={friend.status === 'Accepted'}>
-                                                            Accept
-                                                        </button>
-                                                        <button className="small-button" onClick={() => ignoreFriend(friend.userId)} disabled={friend.status === 'Accepted'}>
-                                                            Ignore
-                                                        </button>
-                                                    </li>
-
-                                                </ul>
-                                            </div>
-
-                                        </li>
-                                    ))}
-                            </ul>
-                        )}
-                    </div>
+                    )}
                 </div>
-            )
-            }</div>
-    );
-}
+            )}
+        </div>
+    )
+};
+
 export default FriendList;
