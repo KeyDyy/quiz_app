@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase';
 import '@/app/friends/index.css';
 import { useSidebar } from '../../providers/SidebarContext';
 import FriendInvite from './FriendSearch'
+
 interface Friend {
     user1: string;
     user2: any;
@@ -22,6 +23,7 @@ const FriendList = () => {
     const [showAccepted, setShowAccepted] = useState(true);
     const [showPending, setShowPending] = useState(false);
     const { showSidebar } = useSidebar();
+    const [showPendingOptions, setShowPendingOptions] = useState(false);
     const { toggleSidebar } = useSidebar();
 
     useEffect(() => {
@@ -149,6 +151,85 @@ const FriendList = () => {
             console.error('Error accepting friend:', error);
         }
     };
+    const createGameInvitation = async (receiverUserId: any, quizLink: string | undefined) => {
+        try {
+            const senderUserId = user?.id; // Assuming you have the sender's user ID
+            let quizDesc = '';
+
+            // Check if a quiz link is provided
+            if (quizLink) {
+                const quizDescMatch = quizLink.match(/\/quiz\/(\w+)/);
+                if (quizDescMatch) {
+                    quizDesc = quizDescMatch[1];
+                }
+            }
+
+            // If quizDesc is not found in the link, show a list of available descriptions
+            if (!quizDesc) {
+                const { data: quizzes, error: quizError } = await supabase
+                    .from('quizzes')
+                    .select('description');
+
+                if (quizError) {
+                    console.error('Error fetching quizzes:', quizError);
+                    return;
+                }
+
+                if (quizzes && quizzes.length > 0) {
+                    // Display available quiz descriptions and let the user choose
+                    console.log('Choose a quiz description:');
+                    quizzes.forEach((quiz) => {
+                        console.log(`- ${quiz.description}`);
+                    });
+                    // You can implement the logic for the user to choose a quiz description here
+                    // Set the chosen quizDesc based on the user's choice
+                } else {
+                    console.log('No quiz descriptions available.');
+                    return;
+                }
+            }
+
+            // Check if a pending invitation already exists between the sender and receiver
+            const { data: existingInvitations, error: existingError } = await supabase
+                .from('game_invitations')
+                .select()
+                .eq('sender_user_id', senderUserId)
+                .eq('receiver_user_id', receiverUserId)
+                .eq('status', 'Pending');
+
+            if (existingError) {
+                console.error('Error checking existing invitations:', existingError);
+                return;
+            }
+
+            if (existingInvitations.length > 0) {
+                // Handle the case where there's an existing pending invitation
+                console.log('There is already a pending invitation between you and this user.');
+                return;
+            }
+
+            // Create a new game invitation with the chosen quizDesc
+            const { data, error } = await supabase
+                .from('game_invitations')
+                .upsert([
+                    {
+                        sender_user_id: senderUserId,
+                        receiver_user_id: receiverUserId,
+                        status: 'Pending',
+                        quiz_desc: quizDesc, // Add quiz_desc to the invitation
+                    },
+                ]);
+
+            if (error) {
+                console.error('Error creating game invitation:', error);
+            } else {
+                // Handle successful invitation creation
+                console.log('Game invitation sent successfully.');
+            }
+        } catch (error) {
+            console.error('Error creating game invitation:', error);
+        }
+    };
 
     const handleToggleSidebar = () => {
         toggleSidebar();
@@ -166,9 +247,9 @@ const FriendList = () => {
                             <h3>
                                 <button
                                     onClick={() => setShowAccepted(!showAccepted)}
-                                    className="toggle-accepted-button text-blue-500"
+
                                 >
-                                    {showAccepted ? 'Pokaż' : 'Ukryj'} Zaakceptowane
+                                    {showAccepted ? 'Accepted' : 'Accepted'}
                                 </button>
                             </h3>
                             {showAccepted && (
@@ -186,16 +267,21 @@ const FriendList = () => {
                                                 <div className="friend-info flex-1">
                                                     <p className="username font-bold">{friend.username}</p>
                                                 </div>
+                                                <button className="small-button" onClick={() => createGameInvitation(friend.userId, window.location.pathname)}>
+
+                                                    Invite
+                                                </button>
+
 
                                                 <div className="options-dropdown relative">
                                                     <button className="options-button text-2xl cursor-pointer">...</button>
                                                     <ul className="options-list hidden absolute z-10 bg-white border border-gray-300 list-none p-0 -left-10">
                                                         <li>
                                                             <button className="small-button p-2" onClick={() => ignoreFriend(friend.userId)}>
-                                                                Usuń
+                                                                Remove
                                                             </button>
                                                             <button className="small-button p-2" onClick={() => blockFriend(friend.userId)}>
-                                                                Zablokuj
+                                                                Block
                                                             </button>
                                                         </li>
                                                     </ul>
@@ -209,9 +295,9 @@ const FriendList = () => {
                             <h3>
                                 <button
                                     onClick={() => setShowPending(!showPending)}
-                                    className="toggle-pending-button text-blue-500"
+
                                 >
-                                    {showPending ? 'Ukryj' : 'Pokaż'} Oczekujące
+                                    {showPending ? 'Hide' : 'Show'} Pending
                                 </button>
                             </h3>
                             {showPending && (
@@ -235,10 +321,10 @@ const FriendList = () => {
                                                     <ul className="options-list hidden absolute z-10 bg-white border border-gray-300 list-none p-0 -left-10">
                                                         <li>
                                                             <button className="small-button p-2" onClick={() => acceptFriend(friend.userId)} disabled={friend.status === 'Accepted'}>
-                                                                Akceptuj
+                                                                Accept
                                                             </button>
                                                             <button className="small-button p-2" onClick={() => ignoreFriend(friend.userId)} disabled={friend.status === 'Accepted'}>
-                                                                Usuń
+                                                                Ignore
                                                             </button>
                                                         </li>
                                                     </ul>

@@ -77,6 +77,8 @@ model game_invitations {
   game_id                                        Int?
   sender_user_id                                 String              @db.Uuid
   receiver_user_id                               String              @db.Uuid
+  quiz_desc                                      String?
+  quiz_subject                                   quizzes?            @relation(fields: [quiz_desc], references: [description], onDelete: NoAction, onUpdate: NoAction)
   status                                         game_invite_status? @default(Pending)
   multiplayer_games                              multiplayer_games?  @relation(fields: [game_id], references: [game_id], onDelete: NoAction, onUpdate: NoAction)
   users_game_invitations_receiver_user_idTousers public_users        @relation("game_invitations_receiver_user_idTousers", fields: [receiver_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -112,14 +114,15 @@ model questions {
 
 model quizzes {
   quiz_id           Int                 @id @default(autoincrement())
-  title             String              @db.VarChar(100)
-  description       String?
+  title             String              @unique @db.VarChar(100)
+  description       String?             @unique
   creator_user_id   String?             @db.Uuid
   creation_date     DateTime?           @default(now()) @db.Timestamp(6)
   logo              String?             @default("tuwstawswojamorde.png")
   multiplayer_games multiplayer_games[]
   questions         questions[]
   users             public_users?       @relation(fields: [creator_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  game_invitations  game_invitations[]
 
   @@schema("public")
 }
