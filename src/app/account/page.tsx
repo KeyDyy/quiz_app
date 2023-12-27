@@ -45,17 +45,20 @@ function UsernameCheck() {
     try {
       const { data, error } = await supabase
         .from('users')
-        .upsert({ username })
+        .update({ username })
         .eq('id', user?.id);
 
+      setIsUsernameMissing(false);
+      setShowModal(false);
+      checkUsername();
       if (error) {
         throw error;
       }
 
       if (data) {
-        setIsUsernameMissing(false);
-        setShowModal(false);
-        checkUsername();
+        // setIsUsernameMissing(false);
+        // setShowModal(false);
+        // checkUsername();
       }
     } catch (error) {
       console.error('Error adding username:', error);
@@ -67,20 +70,20 @@ function UsernameCheck() {
       {showModal && (
         <div className="modal-overlay">
           <div className="modal">
-            <p>Your username is missing. Please add a username:</p>
+
+            <p> Proszę dodaj swój nick:</p>
             <input
               type="text"
               placeholder="Enter your username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
             />
-            <button onClick={handleAddUsername}>Add Username</button>
+            <button onClick={handleAddUsername}>Dodaj nick</button>
           </div>
         </div>
 
       )}
       {isUsernameMissing ? null : <h2 className="text-2xl font-bold">Twój nick: {username}</h2>}
-      {/* {isUsernameMissing ? null : <h2>Your username: {username}</h2>} */}
     </div>
   );
 }
