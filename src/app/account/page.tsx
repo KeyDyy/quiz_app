@@ -1,16 +1,14 @@
-// Import necessary modules
-"use client"
+"use client";
 import { useUserAuth } from "@/lib/userAuth";
-import { useState, useEffect } from 'react';
-import { supabase } from '../../lib/supabase';
-import { useUser } from '../../../hooks/useUser';
-import FriendList from '@/components/FriendList'
-import FriendInvite from '@/components/FriendSearch'
-
-// New component to check and add username
+import { useState, useEffect } from "react";
+import { supabase } from "../../lib/supabase";
+import { useUser } from "../../../hooks/useUser";
+import FriendList from "@/components/FriendList";
+import FriendInvite from "@/components/FriendSearch";
+import Button from "@/components/Button";
 
 function UsernameCheck() {
-  const [username, setUsername] = useState('');
+  const [username, setUsername] = useState("");
   const [isUsernameMissing, setIsUsernameMissing] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const { user } = useUser();
@@ -22,9 +20,9 @@ function UsernameCheck() {
   async function checkUsername() {
     try {
       const { data, error } = await supabase
-        .from('users')
-        .select('username')
-        .eq('id', user?.id);
+        .from("users")
+        .select("username")
+        .eq("id", user?.id);
 
       if (error) {
         throw error;
@@ -37,16 +35,16 @@ function UsernameCheck() {
         setUsername(data[0].username);
       }
     } catch (error) {
-      console.error('Error checking username:', error);
+      console.error("Error checking username:", error);
     }
   }
 
   const handleAddUsername = async () => {
     try {
       const { data, error } = await supabase
-        .from('users')
+        .from("users")
         .update({ username })
-        .eq('id', user?.id);
+        .eq("id", user?.id);
 
       setIsUsernameMissing(false);
       setShowModal(false);
@@ -61,29 +59,33 @@ function UsernameCheck() {
         // checkUsername();
       }
     } catch (error) {
-      console.error('Error adding username:', error);
+      console.error("Error adding username:", error);
     }
   };
 
   return (
     <div className="max-w-md mx-auto p-8">
       {showModal && (
-        <div className="modal-overlay fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="modal bg-white p-20 rounded-lg">
-            <p>Proszę dodaj swój nick:</p>
+        <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="bg-gray-100 p-12 rounded-2xl">
+            <p className="font-bold text-xl">Proszę dodaj swój nick:</p>
             <input
               type="text"
-              placeholder="Enter your username"
+              placeholder="Wpisz tutaj"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="mt-2 p-2 border rounded"
+              className="mt-4 mb-1 p-2 border rounded flex border-gray-400 focus:border-black"
+              style={{
+                outline: "none",
+                boxShadow: "0 0 3px rgba(0, 0, 0, 0.5)",
+              }}
             />
-            <button
+            <Button
               onClick={handleAddUsername}
-              className="mt-4 bg-blue-500 text-white p-2 rounded hover:bg-blue-700"
+              className="mt-4 bg-black text-white p-2 rounded"
             >
               Dodaj nick
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -94,35 +96,23 @@ function UsernameCheck() {
   );
 }
 
-// Modify the Home component to include the UsernameCheck component
 export default function Home() {
   useUserAuth();
 
-
   return (
-    <div className="">
-      {/* Sekcja 1 i 2: Górna lewa strona */}
-
-      <div className="flex bg-gray-100 dark:bg-gray-900">
+   
+      <div className="flex bg-gray-100 dark:bg-gray-900 lg:p-24 md:p-12 p-8 grid lg:grid-cols-2 grid-cols-1 items-center justify-center">
         <div className="flex-1">
-          <div className="max-w-md mx-auto p-8">Zawartość sekcji 1</div>
-          <div className="max-w-md mx-auto p-8">Zawartość sekcji 2</div>
-        </div>
-
-        <div className="flex-1">
-
           <FriendInvite />
           <FriendList />
-
-          <UsernameCheck />
-
-
-
+        </div>
+        <div className="flex-1">
+          <div className="max-w-md mx-auto">
+            <UsernameCheck />
+          </div>
+          <div className="max-w-md mx-auto p-8">Zawartość sekcji 2</div>
         </div>
       </div>
-
-    </div>
+   
   );
-
 }
-

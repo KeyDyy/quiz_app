@@ -8,9 +8,8 @@ import { useState } from "react";
 import { useEffect } from "react";
 import { useUserAuth } from "@/lib/userAuth";
 
-
 // Importuj komponent FriendList
-import FriendGameInvite from "@/components/FriendGameInvite";  // Upewnij się, że ścieżka jest prawidłowa
+import FriendGameInvite from "@/components/FriendGameInvite"; // Upewnij się, że ścieżka jest prawidłowa
 
 interface QuizData {
   logo: string;
@@ -86,12 +85,12 @@ export default function Home() {
 
       {/* Display the friend list modal */}
       {showFriendList && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-8 rounded-lg">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center ">
+          <div className="bg-gray-100 p-12 rounded-2xl border border-gray-400 shadow-2xl items-center justify-center">
             <FriendGameInvite />
             <button
               onClick={handleFriendListClose}
-              className="mt-4 p-2 bg-blue-500 text-white rounded-md"
+              className="mt-4 p-2 px-4 bg-black text-white rounded-2xl font-bold text-lg "
             >
               Close
             </button>
