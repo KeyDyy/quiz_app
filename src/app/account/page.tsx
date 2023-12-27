@@ -6,7 +6,7 @@ import { supabase } from '../../lib/supabase';
 import { useUser } from '../../../hooks/useUser';
 import FriendList from '@/components/FriendList'
 import FriendInvite from '@/components/FriendSearch'
-import "./index.css";
+
 // New component to check and add username
 
 function UsernameCheck() {
@@ -68,22 +68,28 @@ function UsernameCheck() {
   return (
     <div className="max-w-md mx-auto p-8">
       {showModal && (
-        <div className="modal-overlay">
-          <div className="modal">
-
-            <p> Proszę dodaj swój nick:</p>
+        <div className="modal-overlay fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="modal bg-white p-20 rounded-lg">
+            <p>Proszę dodaj swój nick:</p>
             <input
               type="text"
               placeholder="Enter your username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              className="mt-2 p-2 border rounded"
             />
-            <button onClick={handleAddUsername}>Dodaj nick</button>
+            <button
+              onClick={handleAddUsername}
+              className="mt-4 bg-blue-500 text-white p-2 rounded hover:bg-blue-700"
+            >
+              Dodaj nick
+            </button>
           </div>
         </div>
-
       )}
-      {isUsernameMissing ? null : <h2 className="text-2xl font-bold">Twój nick: {username}</h2>}
+      {isUsernameMissing ? null : (
+        <h2 className="text-2xl font-bold">Twój nick: {username}</h2>
+      )}
     </div>
   );
 }
@@ -104,9 +110,13 @@ export default function Home() {
         </div>
 
         <div className="flex-1">
-          <UsernameCheck />
+
           <FriendInvite />
           <FriendList />
+
+          <UsernameCheck />
+
+
 
         </div>
       </div>

@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useUser } from '../../hooks/useUser';
 import { supabase } from '../lib/supabase';
-import '@/app/friends/index.css';
+
 import { useSidebar } from '../../providers/SidebarContext';
 import FriendInvite from './FriendSearch'
 
@@ -237,44 +237,45 @@ const FriendList = () => {
             {/* Sekcja 1: Górna lewa strona */}
             <div className="flex-1">
                 {user && (
-                    // <div className={`right-sidebar ${showSidebar ? 'show' : 'hide'} sm:w-64 md:w-72 lg:w-96 xl:w-120 flex flex-col h-screen`}>
-                    <div className="flex-1 overflow-y-auto">
 
+                    <div className="flex-1 overflow-y-auto">
                         <div className="friend-section mt-5">
                             Znajomi
-
                             <ul>
-                                {/* Mapowanie przez zaakceptowanych przyjaciół i wyświetlanie ich */}
                                 {friends
                                     .filter((friend) => friend.status === 'Accepted')
                                     .map((friend) => (
-                                        <li key={friend.userId} className="friend-list-item flex items-center justify-between mb-4 bg-gray-200 p-2 rounded w-full">
+                                        <li
+                                            key={friend.userId}
+                                            className="friend-list-item flex items-center justify-between mb-4 bg-gray-200 p-2 rounded w-full"
+                                        >
                                             <img
-                                                src={friend.avatar || 'https://t4.ftcdn.net/jpg/05/49/98/39/360_F_549983970_bRCkYfk0P6PP5fKbMhZMIb07mCJ6esXL.jpg'}
+                                                src={
+                                                    friend.avatar ||
+                                                    'https://t4.ftcdn.net/jpg/05/49/98/39/360_F_549983970_bRCkYfk0P6PP5fKbMhZMIb07mCJ6esXL.jpg'
+                                                }
                                                 alt="Avatar"
                                                 className="avatar w-10 h-10 rounded-full mr-2"
                                             />
                                             <div className="friend-info flex-1">
                                                 <p className="username font-bold">{friend.username}</p>
                                             </div>
-                                            {/* <button className="small-button" onClick={() => createGameInvitation(friend.userId, window.location.pathname)}>
-
-                                                Invite
-                                            </button> */}
-
-                                            <button className="small-button p-2" onClick={() => ignoreFriend(friend.userId)}>
+                                            <button
+                                                className="small-button p-2"
+                                                onClick={() => ignoreFriend(friend.userId)}
+                                            >
                                                 Remove
                                             </button>
-                                            <button className="small-button p-2" onClick={() => blockFriend(friend.userId)}>
+                                            <button
+                                                className="small-button p-2"
+                                                onClick={() => blockFriend(friend.userId)}
+                                            >
                                                 Block
                                             </button>
-                                            <div className="options-dropdown relative">
-
-                                            </div>
+                                            <div className="options-dropdown relative"></div>
                                         </li>
                                     ))}
                             </ul>
-
                         </div>
                         <div className="friend-section mt-5">
                             <h3>
@@ -282,27 +283,38 @@ const FriendList = () => {
                                     {showPending ? 'Schowaj' : 'Pokaż'} Oczekujące
                                 </button>
                             </h3>
-
                             {showPending && (
                                 <ul>
-                                    {/* Mapowanie przez oczekujących przyjaciół i wyświetlanie ich */}
                                     {friends
                                         .filter((friend) => friend.status === 'Pending')
                                         .map((friend) => (
-                                            <li key={friend.userId} className="friend-list-item flex items-center justify-between mb-4 bg-gray-200 p-2 rounded w-full">
+                                            <li
+                                                key={friend.userId}
+                                                className="friend-list-item flex items-center justify-between mb-4 bg-gray-200 p-2 rounded w-full"
+                                            >
                                                 <img
-                                                    src={friend.avatar || 'https://t4.ftcdn.net/jpg/05/49/98/39/360_F_549983970_bRCkYfk0P6PP5fKbMhZMIb07mCJ6esXL.jpg'}
+                                                    src={
+                                                        friend.avatar ||
+                                                        'https://t4.ftcdn.net/jpg/05/49/98/39/360_F_549983970_bRCkYfk0P6PP5fKbMhZMIb07mCJ6esXL.jpg'
+                                                    }
                                                     alt="Avatar"
                                                     className="avatar w-10 h-10 rounded-full mr-2"
                                                 />
                                                 <div className="friend-info flex-1">
                                                     <p className="username font-bold">{friend.username}</p>
                                                 </div>
-
-                                                <button className="small-button p-2" onClick={() => acceptFriend(friend.userId)} disabled={friend.status === 'Accepted'}>
+                                                <button
+                                                    className="small-button p-2"
+                                                    onClick={() => acceptFriend(friend.userId)}
+                                                    disabled={friend.status === 'Accepted'}
+                                                >
                                                     Accept
                                                 </button>
-                                                <button className="small-button p-2" onClick={() => ignoreFriend(friend.userId)} disabled={friend.status === 'Accepted'}>
+                                                <button
+                                                    className="small-button p-2"
+                                                    onClick={() => ignoreFriend(friend.userId)}
+                                                    disabled={friend.status === 'Accepted'}
+                                                >
                                                     Ignore
                                                 </button>
                                             </li>
@@ -312,11 +324,11 @@ const FriendList = () => {
                         </div>
                     </div>
 
-                    //</div>
                 )}
             </div>
         </div>
     );
+
 }
 
 export default FriendList;

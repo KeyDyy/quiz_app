@@ -7,10 +7,10 @@ import { getQuizzesData } from "@/lib/fetching";
 import { useState } from "react";
 import { useEffect } from "react";
 import { useUserAuth } from "@/lib/userAuth";
-import "./index.css";
+
 
 // Importuj komponent FriendList
-import FriendList from "@/components/FriendList";  // Upewnij się, że ścieżka jest prawidłowa
+import FriendGameInvite from "@/components/FriendGameInvite";  // Upewnij się, że ścieżka jest prawidłowa
 
 interface QuizData {
   logo: string;
@@ -25,7 +25,6 @@ export default function Home() {
   const [showFriendList, setShowFriendList] = useState(false);
 
   const subject = pathName + "/sologame"; // Replace this with your actual dynamic value
-
 
   useUserAuth();
 
@@ -45,7 +44,6 @@ export default function Home() {
     if (path === "/wyzywaj") {
       // Jeśli kliknięto przycisk "Wyzwij znajomego"
       setShowFriendList(true);
-
     } else {
       // W przeciwnym razie, przekieruj na podaną ścieżkę
       router.push(path);
@@ -56,11 +54,8 @@ export default function Home() {
     setShowFriendList(false);
   };
 
-
-
-
   return (
-    <div className="bg-gray-100 dark-bg-gray-900 flex justify-center w-full p-2">
+    <div className="bg-gray-100 dark:bg-gray-900 flex justify-center w-full p-2">
       <div className="flex flex-col">
         <div className="flex flex-col">
           {[
@@ -87,18 +82,22 @@ export default function Home() {
             </Button>
           ))}
         </div>
-
       </div>
+
       {/* Display the friend list modal */}
       {showFriendList && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <FriendList />
-            <button onClick={handleFriendListClose}>Close</button>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-8 rounded-lg">
+            <FriendGameInvite />
+            <button
+              onClick={handleFriendListClose}
+              className="mt-4 p-2 bg-blue-500 text-white rounded-md"
+            >
+              Close
+            </button>
           </div>
         </div>
       )}
-
     </div>
   );
 }

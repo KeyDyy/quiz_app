@@ -15,7 +15,7 @@ import Notification from "@/components/Notifications";
 import { SidebarProvider } from "../../providers/SidebarContext";
 
 
-import "./globals.css";
+
 import Head from "next/head";
 
 const inter = Inter({ subsets: ["latin"] });
