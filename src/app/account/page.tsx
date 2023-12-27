@@ -101,7 +101,7 @@ export default function Home() {
 
   return (
    
-      <div className="flex bg-gray-100 dark:bg-gray-900 lg:p-24 md:p-12 p-8 grid lg:grid-cols-2 grid-cols-1 items-center justify-center">
+      <div className="flex bg-gray-100 dark:bg-gray-900 lg:p-24 md:p-12 p-8 grid lg:grid-cols-2 grid-cols-1 items-center justify-center ">
         <div className="flex-1">
           <FriendInvite />
           <FriendList />
