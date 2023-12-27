@@ -9,64 +9,56 @@ datasource db {
   schemas  = ["auth", "public"]
 }
 
-enum GameType {
-  mcq
+// model Game {
+//   timeStarted DateTime
+//   topic       String
+//   timeEnded   DateTime?
+//   gameType    GameType
+//   id          String       @id @default(cuid())
+//   userId      String       @db.Uuid
+//   user        public_users @relation(fields: [userId], references: [id], onDelete: Cascade)
+//   //questions   Questions[]
 
-  @@schema("public")
-}
+//   @@index([userId])
+//   @@schema("public")
+// }
 
-model Game {
-  id          String       @id @default(cuid())
-  userId      String       @db.Uuid
-  questions   Question[]
-  timeStarted DateTime
-  topic       String
-  timeEnded   DateTime?
-  gameType    GameType
-  user        public_users @relation(fields: [userId], references: [id], onDelete: Cascade)
+// model Question {
+//   question     String
+//   answer       String
+//   gameId       String
+//   options      Json?
+//   isCorrect    Boolean?
+//   questionType GameType
+//   userAnswer   String?
+//   id           String   @id @default(cuid())
+//   game         Game     @relation(fields: [gameId], references: [id])
 
-  @@index([userId])
-  @@schema("public")
-}
+//   @@index([gameId])
+//   @@schema("public")
+// }
 
-model Question {
-  id       String @id @default(cuid())
-  question String
-  answer   String
-  gameId   String
-  options  Json? // for mcq questions
+// model Answers {
+//   answer_id    Int            @id @default(autoincrement())
+//   question_id  Int
+//   answer_text  String?
+//   is_correct   Boolean        @default(false)
+//   questions    Questions      @relation(fields: [question_id], references: [question_id], onDelete: NoAction, onUpdate: NoAction)
+//   game_answers Game_answers[]
 
-  isCorrect    Boolean? // for mcq questions
-  questionType GameType
-  userAnswer   String?
+//   @@schema("public")
+// }
 
-  game Game @relation(fields: [gameId], references: [id])
-
-  @@index([gameId])
-  @@schema("public")
-}
-
-model answers {
-  answer_id    Int            @id @default(autoincrement())
-  question_id  Int
-  answer_text  String?
-  is_correct   Boolean        @default(false)
-  questions    questions      @relation(fields: [question_id], references: [question_id], onDelete: NoAction, onUpdate: NoAction)
-  game_answers game_answers[]
-
-  @@schema("public")
-}
-
-model game_answers {
+model Game_answers {
   answer_id          Int                @id @default(autoincrement())
   game_id            Int?
   user_id            String?            @db.Uuid
   question_id        Int?
   selected_answer_id Int?
   is_correct         Boolean?           @default(false)
-  multiplayer_games  multiplayer_games? @relation(fields: [game_id], references: [game_id], onDelete: NoAction, onUpdate: NoAction)
-  questions          questions?         @relation(fields: [question_id], references: [question_id], onDelete: NoAction, onUpdate: NoAction)
-  answers            answers?           @relation(fields: [selected_answer_id], references: [answer_id], onDelete: NoAction, onUpdate: NoAction)
+  multiplayer_games  Multiplayer_games? @relation(fields: [game_id], references: [game_id], onDelete: NoAction, onUpdate: NoAction)
+  //questions          Questions?         @relation(fields: [question_id], references: [question_id], onDelete: NoAction, onUpdate: NoAction)
+  // answers            Answers?           @relation(fields: [selected_answer_id], references: [answer_id], onDelete: NoAction, onUpdate: NoAction)
   users              public_users?      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@schema("public")
@@ -77,37 +69,39 @@ model game_invitations {
   game_id                                        Int?
   sender_user_id                                 String              @db.Uuid
   receiver_user_id                               String              @db.Uuid
-  quiz_desc                                      String?
-  quiz_subject                                   quizzes?            @relation(fields: [quiz_desc], references: [description], onDelete: NoAction, onUpdate: NoAction)
   status                                         game_invite_status? @default(Pending)
-  multiplayer_games                              multiplayer_games?  @relation(fields: [game_id], references: [game_id], onDelete: NoAction, onUpdate: NoAction)
+  quiz_desc                                      String?
+  multiplayer_games                              Multiplayer_games?  @relation(fields: [game_id], references: [game_id], onDelete: NoAction, onUpdate: NoAction)
+  quiz_subject                                   quizzes?            @relation(fields: [quiz_desc], references: [description], onDelete: NoAction, onUpdate: NoAction)
   users_game_invitations_receiver_user_idTousers public_users        @relation("game_invitations_receiver_user_idTousers", fields: [receiver_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   users_game_invitations_sender_user_idTousers   public_users        @relation("game_invitations_sender_user_idTousers", fields: [sender_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@schema("public")
 }
 
-model multiplayer_games {
+model Multiplayer_games {
   game_id          Int                @id @default(autoincrement())
   quiz_id          Int?
   start_time       DateTime?          @db.Timestamp(6)
   end_time         DateTime?          @db.Timestamp(6)
   winner_user_id   String?            @db.Uuid
-  game_answers     game_answers[]
+  game_answers     Game_answers[]
   game_invitations game_invitations[]
   quizzes          quizzes?           @relation(fields: [quiz_id], references: [quiz_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@schema("public")
 }
 
-model questions {
-  question_id   Int            @id @default(autoincrement())
-  quiz_id       Int?
-  question_text String?
-  content       String?
-  answers       answers[]
-  game_answers  game_answers[]
-  quizzes       quizzes?       @relation(fields: [quiz_id], references: [quiz_id], onDelete: NoAction, onUpdate: NoAction)
+model Questions {
+  question_id    Int      @id @default(autoincrement())
+  quiz_id        Int
+  question_text  String?
+  content        String?
+  //answers       Answers[]
+  correct_answer String
+  options        Json?
+  //game_answers  Game_answers[]
+  quizzes        quizzes? @relation(fields: [quiz_id], references: [quiz_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@schema("public")
 }
@@ -119,15 +113,15 @@ model quizzes {
   creator_user_id   String?             @db.Uuid
   creation_date     DateTime?           @default(now()) @db.Timestamp(6)
   logo              String?             @default("tuwstawswojamorde.png")
-  multiplayer_games multiplayer_games[]
-  questions         questions[]
-  users             public_users?       @relation(fields: [creator_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   game_invitations  game_invitations[]
+  multiplayer_games Multiplayer_games[]
+  questions         Questions[]
+  users             public_users?       @relation(fields: [creator_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@schema("public")
 }
 
-model statistics {
+model Statistics {
   stat_id               Int           @id @default(autoincrement())
   user_id               String?       @db.Uuid
   total_quizzes_taken   Int?          @default(0)
@@ -141,32 +135,30 @@ model statistics {
 model public_users {
   id                   String             @id @db.Uuid
   full_name            String?
+  avatar_url           String?            @default("https://t4.ftcdn.net/jpg/05/49/98/39/360_F_549983970_bRCkYfk0P6PP5fKbMhZMIb07mCJ6esXL.jpg")
   username             String?
-  avatar_url           String?
-  game_answers         game_answers[]
-  game_invite_receiver game_invitations[] @relation("game_invitations_receiver_user_idTousers")
-  game_invite_sender   game_invitations[] @relation("game_invitations_sender_user_idTousers")
+  //Game                 Game[]
   friend_send          friends[]          @relation("friends1")
   friend_rec           friends[]          @relation("friends2")
+  game_answers         Game_answers[]
+  game_invite_receiver game_invitations[] @relation("game_invitations_receiver_user_idTousers")
+  game_invite_sender   game_invitations[] @relation("game_invitations_sender_user_idTousers")
   quizzes              quizzes[]
-  statistics           statistics[]
-
-  users auth_users @relation(fields: [id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  Game  Game[]
+  statistics           Statistics[]
+  users                auth_users         @relation(fields: [id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@map("users")
   @@schema("public")
 }
 
 model friends {
-  id         Int                  @id @default(autoincrement())
-  user1      String               @db.Uuid
-  user2      String               @db.Uuid
-  status     friend_invite_status @default(Pending) // You can use this to track the friend request status (e.g., "pending", "accepted", "rejected")
-  created_at DateTime             @default(now())
-
-  user1_users public_users @relation("friends1", fields: [user1], references: [id])
-  user2_users public_users @relation("friends2", fields: [user2], references: [id])
+  id          Int                  @id @default(autoincrement())
+  user1       String               @db.Uuid
+  user2       String               @db.Uuid
+  created_at  DateTime             @default(now())
+  status      friend_invite_status @default(Pending)
+  user1_users public_users         @relation("friends1", fields: [user1], references: [id])
+  user2_users public_users         @relation("friends2", fields: [user2], references: [id])
 
   @@schema("public")
 }
@@ -206,7 +198,7 @@ model flow_state {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model identities {
-  id              String
+  provider_id     String
   user_id         String     @db.Uuid
   identity_data   Json
   provider        String
@@ -214,9 +206,10 @@ model identities {
   created_at      DateTime?  @db.Timestamptz(6)
   updated_at      DateTime?  @db.Timestamptz(6)
   email           String?    @default(dbgenerated("lower((identity_data ->> 'email'::text))"))
+  id              String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   users           auth_users @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
-  @@id([provider, id])
+  @@unique([provider_id, provider], map: "identities_provider_id_provider_unique")
   @@index([email])
   @@index([user_id])
   @@schema("auth")
@@ -352,6 +345,10 @@ model sessions {
   factor_id      String?          @db.Uuid
   aal            aal_level?
   not_after      DateTime?        @db.Timestamptz(6)
+  refreshed_at   DateTime?        @db.Timestamp(6)
+  user_agent     String?
+  ip             String?          @db.Inet
+  tag            String?
   mfa_amr_claims mfa_amr_claims[]
   refresh_tokens refresh_tokens[]
   users          auth_users       @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
@@ -440,6 +437,20 @@ model auth_users {
   @@schema("auth")
 }
 
+enum GameType {
+  biologia
+  fizyka
+  geografia
+  chemia
+  historia
+  kosmos
+  ksiazki
+  samochody
+  programista
+
+  @@schema("public")
+}
+
 enum friend_invite_status {
   Pending
   Accepted
@@ -512,4 +523,3 @@ enum subscription_status {
 
   @@schema("public")
 }
-

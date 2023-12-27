@@ -1,3 +1,4 @@
+// Importuj potrzebne moduły
 "use client";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,9 @@ import { useEffect } from "react";
 import { useUserAuth } from "@/lib/userAuth";
 import "./index.css";
 
+// Importuj komponent FriendList
+import FriendList from "@/components/FriendList";  // Upewnij się, że ścieżka jest prawidłowa
+
 interface QuizData {
   logo: string;
   title: string;
@@ -16,11 +20,15 @@ interface QuizData {
 export default function Home() {
   const router = useRouter();
   const pathName = usePathname();
-  const quizPathName = pathName.split("/").pop();
 
   const [data, setData] = useState<QuizData[]>([]);
+  const [showFriendList, setShowFriendList] = useState(false);
+
+  const subject = pathName + "/sologame"; // Replace this with your actual dynamic value
+
 
   useUserAuth();
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -34,16 +42,30 @@ export default function Home() {
   }, []);
 
   const handleButtonClick = (path: string) => {
-    router.push(path);
+    if (path === "/wyzywaj") {
+      // Jeśli kliknięto przycisk "Wyzwij znajomego"
+      setShowFriendList(true);
+
+    } else {
+      // W przeciwnym razie, przekieruj na podaną ścieżkę
+      router.push(path);
+    }
   };
+
+  const handleFriendListClose = () => {
+    setShowFriendList(false);
+  };
+
+
+
 
   return (
     <div className="bg-gray-100 dark-bg-gray-900 flex justify-center w-full p-2">
       <div className="flex flex-col">
         <div className="flex flex-col">
           {[
-            { text: "Graj sam!", path: "/" },
-            { text: "Wyzwij znajomego!", path: "/" },
+            { text: "Graj sam!", path: subject },
+            { text: "Wyzwij znajomego!", path: "/wyzywaj" },
             { text: "Wybierz inny Quiz!", path: "/" },
             { text: "Dodaj pytanie do tego Quizu!", path: "/" },
           ].map((item, index) => (
@@ -65,7 +87,18 @@ export default function Home() {
             </Button>
           ))}
         </div>
+
       </div>
+      {/* Display the friend list modal */}
+      {showFriendList && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <FriendList />
+            <button onClick={handleFriendListClose}>Close</button>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

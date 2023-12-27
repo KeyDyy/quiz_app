@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import { useUser } from '../../hooks/useUser';
 //import '@/app/friends/index.css';
 // Define a type for the found user data
+
 type FoundUser = {
     id: string;
     full_name: string | null;
@@ -26,6 +27,7 @@ const InviteFriend = () => {
             if (username) {
                 const { data, error } = await supabase
                     .from('users')
+
                     .select('id, full_name, username, avatar_url')
                     .like('username', `%${username}%`)
                     .single();
@@ -103,15 +105,15 @@ const InviteFriend = () => {
         <div className="relative">
             {user && (
 
-                <div className="fixed bottom-0 left-0 w-full bg-white shadow-md p-4 transform translate-y-full sm:translate-y-0">
-                    <h2 className="text-2xl font-bold">Find and Invite Friends by Username</h2>
+                <div className="">
+                    <h2 className="text-2xl font-bold">Wyszukaj znajomego</h2>
                     <div className="flex items-center space-x-4">
                         <input
                             type="text"
                             value={username}
                             onChange={handleUsernameChange}
                             className="input w-2/3 p-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300"
-                            placeholder="Enter username or ID"
+                            placeholder="Wprowadź nick znajomego"
                         />
                         <button onClick={findUser} className="small-button p-2">
                             Find User
@@ -120,6 +122,12 @@ const InviteFriend = () => {
                     {foundUser && (
                         <div className="mt-4">
                             <h3 className="text-xl font-bold">Found User</h3>
+                            {/* <p>ID: {foundUser.id}</p> */}
+                            <img
+                                src={foundUser.avatar_url || 'https://t4.ftcdn.net/jpg/05/49/98/39/360_F_549983970_bRCkYfk0P6PP5fKbMhZMIb07mCJ6esXL.jpg'}
+                                alt="Avatar"
+                                className="avatar w-10 h-10 rounded-full mr-2"
+                            />
                             <p>Username: {foundUser.username}</p>
                             <p>Full Name: {foundUser.full_name || 'N/A'}</p>
                             <button onClick={inviteFriend} className="small-button p-2">

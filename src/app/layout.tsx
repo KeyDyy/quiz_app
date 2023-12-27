@@ -11,7 +11,7 @@ import { Inter } from "next/font/google";
 import UserProvider from "../../providers/UserProvider";
 import ModalProvider from "../../providers/ModalProvider";
 import SupabaseProvider from "../../providers/SupabaseProvider";
-import FriendList from "@/components/FriendList";
+import Notification from "@/components/Notifications";
 import { SidebarProvider } from "../../providers/SidebarContext";
 
 
@@ -45,14 +45,14 @@ export default async function RootLayout({
         style={{ display: "flex", minHeight: "100vh", flexDirection: "column" }}
       >
         {/* <ToasterProvider /> */}
-        
+
         <SupabaseProvider>
           <UserProvider>
             <ModalProvider />
 
             <SidebarProvider>
               <Navbar />
-              <FriendList />
+              <Notification />
               <div className="flex-1 bg-gray-100">{children}</div>
 
               <Footer />

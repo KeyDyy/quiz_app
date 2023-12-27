@@ -22,7 +22,7 @@ const FriendList = () => {
     const [friends, setFriends] = useState<Friend[]>([]);
     const [showAccepted, setShowAccepted] = useState(true);
     const [showPending, setShowPending] = useState(false);
-    const { showSidebar } = useSidebar();
+
     const [showPendingOptions, setShowPendingOptions] = useState(false);
     const { toggleSidebar } = useSidebar();
 
@@ -231,75 +231,58 @@ const FriendList = () => {
         }
     };
 
-    const handleToggleSidebar = () => {
-        toggleSidebar();
-    };
 
     return (
-        <div className="relative">
-            {user && (
-                <div className={`right-sidebar ${showSidebar ? 'show' : 'hide'} sm:w-64 md:w-72 lg:w-96 xl:w-120 flex flex-col h-screen`}>
+        <div className="relative flex bg-gray-100 dark:bg-gray-900">
+            {/* Sekcja 1: Górna lewa strona */}
+            <div className="flex-1">
+                {user && (
+                    // <div className={`right-sidebar ${showSidebar ? 'show' : 'hide'} sm:w-64 md:w-72 lg:w-96 xl:w-120 flex flex-col h-screen`}>
                     <div className="flex-1 overflow-y-auto">
-                        <button onClick={handleToggleSidebar} className="bg-white">
-                            <h2 className="friend-list-header text-xl font-bold">Friend List</h2>
-                        </button>
+
                         <div className="friend-section mt-5">
-                            <h3>
-                                <button
-                                    onClick={() => setShowAccepted(!showAccepted)}
+                            Znajomi
 
-                                >
-                                    {showAccepted ? 'Accepted' : 'Accepted'}
-                                </button>
-                            </h3>
-                            {showAccepted && (
-                                <ul>
-                                    {/* Mapowanie przez zaakceptowanych przyjaciół i wyświetlanie ich */}
-                                    {friends
-                                        .filter((friend) => friend.status === 'Accepted')
-                                        .map((friend) => (
-                                            <li key={friend.userId} className="friend-list-item flex items-center justify-between mb-4 bg-gray-200 p-2 rounded w-full">
-                                                <img
-                                                    src={friend.avatar || 'https://t4.ftcdn.net/jpg/05/49/98/39/360_F_549983970_bRCkYfk0P6PP5fKbMhZMIb07mCJ6esXL.jpg'}
-                                                    alt="Avatar"
-                                                    className="avatar w-10 h-10 rounded-full mr-2"
-                                                />
-                                                <div className="friend-info flex-1">
-                                                    <p className="username font-bold">{friend.username}</p>
-                                                </div>
-                                                <button className="small-button" onClick={() => createGameInvitation(friend.userId, window.location.pathname)}>
+                            <ul>
+                                {/* Mapowanie przez zaakceptowanych przyjaciół i wyświetlanie ich */}
+                                {friends
+                                    .filter((friend) => friend.status === 'Accepted')
+                                    .map((friend) => (
+                                        <li key={friend.userId} className="friend-list-item flex items-center justify-between mb-4 bg-gray-200 p-2 rounded w-full">
+                                            <img
+                                                src={friend.avatar || 'https://t4.ftcdn.net/jpg/05/49/98/39/360_F_549983970_bRCkYfk0P6PP5fKbMhZMIb07mCJ6esXL.jpg'}
+                                                alt="Avatar"
+                                                className="avatar w-10 h-10 rounded-full mr-2"
+                                            />
+                                            <div className="friend-info flex-1">
+                                                <p className="username font-bold">{friend.username}</p>
+                                            </div>
+                                            {/* <button className="small-button" onClick={() => createGameInvitation(friend.userId, window.location.pathname)}>
 
-                                                    Invite
-                                                </button>
+                                                Invite
+                                            </button> */}
 
+                                            <button className="small-button p-2" onClick={() => ignoreFriend(friend.userId)}>
+                                                Remove
+                                            </button>
+                                            <button className="small-button p-2" onClick={() => blockFriend(friend.userId)}>
+                                                Block
+                                            </button>
+                                            <div className="options-dropdown relative">
 
-                                                <div className="options-dropdown relative">
-                                                    <button className="options-button text-2xl cursor-pointer">...</button>
-                                                    <ul className="options-list hidden absolute z-10 bg-white border border-gray-300 list-none p-0 -left-10">
-                                                        <li>
-                                                            <button className="small-button p-2" onClick={() => ignoreFriend(friend.userId)}>
-                                                                Remove
-                                                            </button>
-                                                            <button className="small-button p-2" onClick={() => blockFriend(friend.userId)}>
-                                                                Block
-                                                            </button>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </li>
-                                        ))}
-                                </ul>
-                            )}
+                                            </div>
+                                        </li>
+                                    ))}
+                            </ul>
+
                         </div>
                         <div className="friend-section mt-5">
                             <h3>
-                                <button
-                                    onClick={() => setShowPending(!showPending)}
-
-                                >
-                                    {showPending ? 'Hide' : 'Show'} Pending
+                                <button onClick={() => setShowPending(!showPending)}>
+                                    {showPending ? 'Schowaj' : 'Pokaż'} Oczekujące
                                 </button>
                             </h3>
+
                             {showPending && (
                                 <ul>
                                     {/* Mapowanie przez oczekujących przyjaciół i wyświetlanie ich */}
@@ -316,34 +299,24 @@ const FriendList = () => {
                                                     <p className="username font-bold">{friend.username}</p>
                                                 </div>
 
-                                                <div className="options-dropdown relative">
-                                                    <button className="options-button text-2xl cursor-pointer">...</button>
-                                                    <ul className="options-list hidden absolute z-10 bg-white border border-gray-300 list-none p-0 -left-10">
-                                                        <li>
-                                                            <button className="small-button p-2" onClick={() => acceptFriend(friend.userId)} disabled={friend.status === 'Accepted'}>
-                                                                Accept
-                                                            </button>
-                                                            <button className="small-button p-2" onClick={() => ignoreFriend(friend.userId)} disabled={friend.status === 'Accepted'}>
-                                                                Ignore
-                                                            </button>
-                                                        </li>
-                                                    </ul>
-                                                </div>
+                                                <button className="small-button p-2" onClick={() => acceptFriend(friend.userId)} disabled={friend.status === 'Accepted'}>
+                                                    Accept
+                                                </button>
+                                                <button className="small-button p-2" onClick={() => ignoreFriend(friend.userId)} disabled={friend.status === 'Accepted'}>
+                                                    Ignore
+                                                </button>
                                             </li>
                                         ))}
                                 </ul>
                             )}
                         </div>
                     </div>
-                    {showSidebar && (
 
-                        <FriendInvite />
-
-                    )}
-                </div>
-            )}
+                    //</div>
+                )}
+            </div>
         </div>
-    )
-};
+    );
+}
 
 export default FriendList;
