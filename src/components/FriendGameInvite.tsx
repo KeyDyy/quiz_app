@@ -159,47 +159,50 @@ const FriendGameInvite = () => {
       {/* Sekcja 1: Górna lewa strona */}
       <div className="flex-1">
         {user && (
-          // <div className={`right-sidebar ${showSidebar ? 'show' : 'hide'} sm:w-64 md:w-72 lg:w-96 xl:w-120 flex flex-col h-screen`}>
           <div className="flex-1 overflow-y-auto">
             <div className="friend-section mt-5">
-              <ul>
-                {/* Mapowanie przez zaakceptowanych przyjaciół i wyświetlanie ich */}
-                {friends
-                  .filter((friend) => friend.status === "Accepted")
-                  .map((friend) => (
-                    <li
-                      key={friend.userId}
-                      className="flex items-center justify-between bg-gray-200 p-6 lg:px-12 rounded-2xl border border-gray-300 my-1"
-                    >
-                      <img
-                        src={
-                          friend.avatar ||
-                          "https://t4.ftcdn.net/jpg/05/49/98/39/360_F_549983970_bRCkYfk0P6PP5fKbMhZMIb07mCJ6esXL.jpg"
-                        }
-                        alt="Avatar"
-                        className="avatar w-10 h-10 rounded-full mr-2"
-                      />
-                      <div className="flex-1">
-                        <p className="font-bold mr-12">{friend.username}</p>
-                      </div>
-                      <Button
-                        className="bg-black text-gray-100 px-6"
-                        onClick={() =>
-                          createGameInvitation(
-                            friend.userId,
-                            window.location.pathname
-                          )
-                        }
+              {friends.length > 0 ? (
+                <ul>
+                  {/* Mapowanie przez zaakceptowanych przyjaciół i wyświetlanie ich */}
+                  {friends
+                    .filter((friend) => friend.status === "Accepted")
+                    .map((friend) => (
+                      <li
+                        key={friend.userId}
+                        className="flex items-center justify-between bg-gray-200 p-6 lg:px-12 rounded-2xl border border-gray-300 my-1"
                       >
-                        Zaproś
-                      </Button>
-                    </li>
-                  ))}
-              </ul>
+                        <img
+                          src={
+                            friend.avatar ||
+                            "https://t4.ftcdn.net/jpg/05/49/98/39/360_F_549983970_bRCkYfk0P6PP5fKbMhZMIb07mCJ6esXL.jpg"
+                          }
+                          alt="Avatar"
+                          className="avatar w-10 h-10 rounded-full mr-2"
+                        />
+                        <div className="flex-1">
+                          <p className="font-bold mr-12">{friend.username}</p>
+                        </div>
+                        <Button
+                          className="bg-black text-gray-100 px-6"
+                          onClick={() =>
+                            createGameInvitation(
+                              friend.userId,
+                              window.location.pathname
+                            )
+                          }
+                        >
+                          Zaproś
+                        </Button>
+                      </li>
+                    ))}
+                </ul>
+              ) : (
+                
+                <p className="text-center text-black font-bold p-4 flex">Brak znajomych</p>
+                
+              )}
             </div>
           </div>
-
-          //</div>
         )}
       </div>
     </div>
