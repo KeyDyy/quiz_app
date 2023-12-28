@@ -101,11 +101,11 @@ const InviteFriend = () => {
   };
 
   return (
-    <div className="relative">
+    <div className="">
       {user && (
         <div className="">
           <h2 className="text-2xl font-bold mb-2"> Wyszukaj znajomego </h2>
-          <div className="flex items-center space-x-2 w-full md:w-3/4 lg:w-3/4">
+          <div className="flex items-center space-x-2 w-full ">
             <input
               type="text"
               value={username}

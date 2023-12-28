@@ -169,7 +169,7 @@ const FriendGameInvite = () => {
                     .map((friend) => (
                       <li
                         key={friend.userId}
-                        className="flex items-center justify-between bg-gray-200 p-6 lg:px-12 rounded-2xl border border-gray-300 my-1"
+                        className="flex items-center justify-between bg-gray-200 p-6 lg:px-12 rounded-2xl border border-gray-300 my-1 "
                       >
                         <img
                           src={
@@ -183,7 +183,7 @@ const FriendGameInvite = () => {
                           <p className="font-bold mr-12">{friend.username}</p>
                         </div>
                         <Button
-                          className="bg-black text-gray-100 px-6"
+                          className="bg-black text-gray-100 px-6 w-auto"
                           onClick={() =>
                             createGameInvitation(
                               friend.userId,

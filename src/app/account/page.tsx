@@ -89,9 +89,6 @@ function UsernameCheck() {
           </div>
         </div>
       )}
-      {isUsernameMissing ? null : (
-        <h2 className="text-2xl font-bold">Twój nick: {username}</h2>
-      )}
     </div>
   );
 }
@@ -100,19 +97,21 @@ export default function Home() {
   useUserAuth();
 
   return (
-   
-      <div className="flex bg-gray-100 dark:bg-gray-900 lg:p-24 md:p-12 p-8 grid lg:grid-cols-2 grid-cols-1 items-center justify-center ">
-        <div className="flex-1">
-          <FriendInvite />
-          <FriendList />
-        </div>
-        <div className="flex-1">
-          <div className="max-w-md mx-auto">
-            <UsernameCheck />
-          </div>
-          <div className="max-w-md mx-auto p-8"> Zawartość sekcji 2 </div>
+    <div className="flex bg-gray-100 dark:bg-gray-900 lg:p-24 md:p-12 p-8 grid lg:grid-cols-2 grid-cols-1 lg:divide-x">
+      <div className="flex-1 m-4">
+        <FriendInvite />
+        <FriendList />
+        <div className="p-8 ">
+          <UsernameCheck />
         </div>
       </div>
-   
+      <div className="flex-1 m-4 p-8 ">
+        <div className="flex justify-center">
+          <div>
+            Witam
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

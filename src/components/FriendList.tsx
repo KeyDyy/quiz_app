@@ -229,7 +229,7 @@ const FriendList = () => {
                   .map((friend) => (
                     <li
                       key={friend.userId}
-                      className="flex items-center justify-between mb-4 bg-gray-200 border border-gray-400 p-2 rounded-lg w-full md:w-3/4 lg:w-3/4"
+                      className="flex items-center justify-between mb-4 bg-gray-200 border border-gray-400 p-2 rounded-lg w-full"
                     >
                       <img
                         src={
@@ -240,17 +240,17 @@ const FriendList = () => {
                         className="avatar w-10 h-10 rounded-full mr-2"
                       />
                       <div className="flex-1">
-                        <p className="font-bold">{friend.username}</p>
+                        <p className="font-bold text-sm md:text-md lg:text-lg">{friend.username}</p>
                       </div>
                       <div className="flex">
                         <Button
-                          className="p-2 px-4 text-white bg-black text-lg mx-1"
+                          className="p-2 px-4 text-white bg-black mx-1 text-sm md:text-md lg:text-lg"
                           onClick={() => ignoreFriend(friend.userId)}
                         >
                           Usuń
                         </Button>
                         <Button
-                          className="p-2 px-4 text-white bg-black text-lg mx-1 "
+                          className="p-2 px-4 text-white bg-black mx-1 text-sm md:text-md lg:text-lg"
                           onClick={() => blockFriend(friend.userId)}
                         >
                           Blokuj
