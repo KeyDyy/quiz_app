@@ -110,7 +110,7 @@ export default function Home() {
           <div className="max-w-md mx-auto">
             <UsernameCheck />
           </div>
-          <div className="max-w-md mx-auto p-8">Zawartość sekcji 2</div>
+          <div className="max-w-md mx-auto p-8"> Zawartość sekcji 2 </div>
         </div>
       </div>
    

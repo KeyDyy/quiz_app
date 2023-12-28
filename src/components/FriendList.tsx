@@ -244,16 +244,16 @@ const FriendList = () => {
                       </div>
                       <div className="flex">
                         <Button
-                          className="p-2 text-white bg-black text-lg mx-1"
+                          className="p-2 px-4 text-white bg-black text-lg mx-1"
                           onClick={() => ignoreFriend(friend.userId)}
                         >
-                          Remove
+                          Usuń
                         </Button>
                         <Button
-                          className="p-2 text-white bg-black text-lg mx-1 "
+                          className="p-2 px-4 text-white bg-black text-lg mx-1 "
                           onClick={() => blockFriend(friend.userId)}
                         >
-                          Block
+                          Blokuj
                         </Button>
                       </div>
                       <div className="relative"></div>
@@ -295,14 +295,14 @@ const FriendList = () => {
                           onClick={() => acceptFriend(friend.userId)}
                           disabled={friend.status === "Accepted"}
                         >
-                          Accept
+                          Akceptuj
                         </Button>
                         <Button
                           className="p-2 text-white bg-black text-lg mx-1 w-auto"
                           onClick={() => ignoreFriend(friend.userId)}
                           disabled={friend.status === "Accepted"}
                         >
-                          Ignore
+                          Ignoruj
                         </Button>
                       </li>
                     ))}
