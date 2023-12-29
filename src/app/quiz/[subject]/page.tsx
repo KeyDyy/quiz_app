@@ -23,8 +23,8 @@ export default function Home() {
   const [data, setData] = useState<QuizData[]>([]);
   const [showFriendList, setShowFriendList] = useState(false);
 
-  const subject = pathName + "/sologame"; // Replace this with your actual dynamic value
-
+  const sologame = pathName + "/sologame"; // Replace this with your actual dynamic value
+  const addquestion = pathName + "/addquestion"
   useUserAuth();
 
   useEffect(() => {
@@ -66,10 +66,10 @@ export default function Home() {
       <div className="flex flex-col">
         <div className="flex flex-col">
           {[
-            { text: "Graj sam!", path: subject },
+            { text: "Graj sam!", path: sologame },
             { text: "Wyzwij znajomego!", path: "/wyzywaj" },
             { text: "Wybierz inny Quiz!", path: "/" },
-            { text: "Dodaj pytanie do tego Quizu!", path: "/" },
+            { text: "Dodaj pytanie do tego Quizu!", path: addquestion },
           ].map((item, index) => (
             <Button
               onClick={() => handleButtonClick(item.path)}

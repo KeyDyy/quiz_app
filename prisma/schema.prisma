@@ -101,6 +101,7 @@ model Questions {
   correct_answer String
   options        Json?
   //game_answers  Game_answers[]
+  approved       Boolean  @default(false)
   quizzes        quizzes? @relation(fields: [quiz_id], references: [quiz_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@schema("public")
