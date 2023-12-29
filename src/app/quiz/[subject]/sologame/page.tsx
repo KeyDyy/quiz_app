@@ -90,7 +90,6 @@ const QuizPage: NextPage = () => {
     fetchQuestions();
   }, [subject]);
 
-
   const [timer, setTimer] = useState<number>(10); // 10 seconds initially
 
   useEffect(() => {
@@ -120,9 +119,6 @@ const QuizPage: NextPage = () => {
     }
   }, [timer]);
 
-
-
-
   const handleSelectAnswer = (selectedAnswer: string) => {
     if (!answered) {
       const isCorrectAnswer = selectedAnswer === currentQuestion.correct_answer;
@@ -149,7 +145,6 @@ const QuizPage: NextPage = () => {
       handleNextQuestion();
     }
   };
-
 
   const handleNextQuestion = () => {
     //console.log('Handling next question...');
@@ -189,23 +184,21 @@ const QuizPage: NextPage = () => {
   useEffect(() => {
     // Shuffle options when a new question is loaded
     if (currentQuestion) {
-      const optionsCopy = currentQuestion.options ? [...currentQuestion.options] : [];
+      const optionsCopy = currentQuestion.options
+        ? [...currentQuestion.options]
+        : [];
       const newShuffledOptions = optionsCopy.sort(() => Math.random() - 0.5);
       setShuffledOptions(newShuffledOptions);
     }
   }, [currentQuestion]);
-
 
   const renderQuestion = () => {
     //console.log('Rendering question...');
     //console.log('currentQuestionIndex:', currentQuestionIndex);
     //console.log('questions:', questions);
 
-
-
     return (
       <div className="flex justify-center pb-12">
-        {score}
         <div className="flex flex-col mt-16 m-6 h-max bg-gray-200 p-12 border-2 border-gray-600 rounded-2xl shadow-2xl">
           <div className="center-content font-sans text-center">
             {currentQuestion ? (
@@ -216,7 +209,7 @@ const QuizPage: NextPage = () => {
                 {currentQuestion.content && (
                   <div className="question-image">
                     {currentQuestion.content.endsWith(".jpg") ||
-                      currentQuestion.content.endsWith(".png") ? (
+                    currentQuestion.content.endsWith(".png") ? (
                       <img
                         src={currentQuestion.content}
                         alt="Question"
@@ -241,32 +234,27 @@ const QuizPage: NextPage = () => {
                       key={index}
                       onClick={() => handleSelectAnswer(option)}
                       className={`bg-white m-2 rounded-lg border-2 border-b-4 border-r-4 border-black px-2 py-1 text-xl font-bold transition-all hover:-translate-y-[2px] md:block dark:border-white 
-                          ${selectedAnswerIndex === index
-                          ? "selected incorrect"
-                          : ""
-                        }`}
+                          ${
+                            selectedAnswerIndex === index
+                              ? "selected incorrect"
+                              : ""
+                          }`}
                       style={{ cursor: "pointer" }}
                     >
                       <strong>{String.fromCharCode(65 + index)}</strong> -{" "}
                       {option}
                     </li>
-                  )
-                  )}
+                  ))}
                 </ul>
 
-                <div className="text-lg font-bold mb-4 text-center">Time left: {timer} seconds</div>
-                {/* Progress bar for the timer */}
+                <div className="text-lg font-bold mb-2 text-center mt-4">
+                  Pozostały czas: {timer}
+                </div>
+
                 <div className="relative pt-1">
-                  <div className="flex mb-2 items-center justify-between">
-                    <div>
-                      <span className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-teal-600 bg-teal-200">
-                        Time left: {timer} seconds
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex h-2 mb-4 overflow-hidden">
+                  <div className="flex h-3 mb-4 m-1 m overflow-hidden border-2 border-gray-800 rounded-xl">
                     <div
-                      className="w-full bg-teal-200"
+                      className="w-full bg-black "
                       style={{ width: `${(timer / 10) * 100}%` }}
                     ></div>
                   </div>
@@ -309,8 +297,8 @@ const QuizPage: NextPage = () => {
       {loading
         ? "Loading..."
         : quizCompleted
-          ? renderResults()
-          : renderQuestion()}
+        ? renderResults()
+        : renderQuestion()}
     </div>
   );
 };
