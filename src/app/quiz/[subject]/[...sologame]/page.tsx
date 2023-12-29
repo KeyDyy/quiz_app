@@ -47,6 +47,8 @@ const QuizPage: NextPage = () => {
   const match = pathName.match(/\/quiz\/([^/]+)\/sologame/);
 
   const subject = match ? match[1] : null;
+  const currentQuestion = questions[currentQuestionIndex];
+
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
@@ -88,12 +90,41 @@ const QuizPage: NextPage = () => {
     fetchQuestions();
   }, [subject]);
 
-  const currentQuestion = questions[currentQuestionIndex];
 
-  const handleSelectAnswer = (answerIndex: number) => {
+  const [timer, setTimer] = useState<number>(10); // 10 seconds initially
+
+  useEffect(() => {
+    let timerInterval: NodeJS.Timeout;
+
+    // Define a function to decrement the timer
+    const decrementTimer = () => {
+      setTimer((prevTimer) => prevTimer - 1);
+    };
+
+    // Start the timer when a new question is loaded
+    if (currentQuestion) {
+      setTimer(10); // Reset timer for each new question
+      timerInterval = setInterval(decrementTimer, 1000); // Update timer every second
+    }
+
+    // Clean up the timer interval when component unmounts or question changes
+    return () => {
+      clearInterval(timerInterval);
+    };
+  }, [currentQuestion]);
+
+  // Check if time is up and move to the next question
+  useEffect(() => {
+    if (timer === 0) {
+      handleSelectAnswer(""); // Consider the question as incorrectly answered
+    }
+  }, [timer]);
+
+
+
+
+  const handleSelectAnswer = (selectedAnswer: string) => {
     if (!answered) {
-      const selectedAnswer =
-        currentQuestion.options && currentQuestion.options[answerIndex];
       const isCorrectAnswer = selectedAnswer === currentQuestion.correct_answer;
 
       // Update the counters based on the correctness of the selected answer
@@ -108,8 +139,6 @@ const QuizPage: NextPage = () => {
         isCorrectAnswer ? prevScore + 1 : prevScore - 1
       );
 
-      setSelectedAnswerIndex(answerIndex);
-
       // Check if this is the last question
       if (currentQuestionIndex === questions.length - 1) {
         setIsLastQuestion(true);
@@ -120,6 +149,7 @@ const QuizPage: NextPage = () => {
       handleNextQuestion();
     }
   };
+
 
   const handleNextQuestion = () => {
     //console.log('Handling next question...');
@@ -154,13 +184,28 @@ const QuizPage: NextPage = () => {
     router.push("/");
   };
 
+  const [shuffledOptions, setShuffledOptions] = useState<string[]>([]);
+
+  useEffect(() => {
+    // Shuffle options when a new question is loaded
+    if (currentQuestion) {
+      const optionsCopy = currentQuestion.options ? [...currentQuestion.options] : [];
+      const newShuffledOptions = optionsCopy.sort(() => Math.random() - 0.5);
+      setShuffledOptions(newShuffledOptions);
+    }
+  }, [currentQuestion]);
+
+
   const renderQuestion = () => {
     //console.log('Rendering question...');
     //console.log('currentQuestionIndex:', currentQuestionIndex);
     //console.log('questions:', questions);
+
+
+
     return (
       <div className="flex justify-center pb-12">
-        {/* {score} */}
+        {score}
         <div className="flex flex-col mt-16 m-6 h-max bg-gray-200 p-12 border-2 border-gray-600 rounded-2xl shadow-2xl">
           <div className="center-content font-sans text-center">
             {currentQuestion ? (
@@ -171,7 +216,7 @@ const QuizPage: NextPage = () => {
                 {currentQuestion.content && (
                   <div className="question-image">
                     {currentQuestion.content.endsWith(".jpg") ||
-                    currentQuestion.content.endsWith(".png") ? (
+                      currentQuestion.content.endsWith(".png") ? (
                       <img
                         src={currentQuestion.content}
                         alt="Question"
@@ -191,25 +236,41 @@ const QuizPage: NextPage = () => {
                 )}
 
                 <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-4">
-                  {currentQuestion.options &&
-                    currentQuestion.options.map(
-                      (option: any, index: number) => (
-                        <li
-                          key={index}
-                          onClick={() => handleSelectAnswer(index)}
-                          className={`bg-white m-2 rounded-lg border-2 border-b-4 border-r-4 border-black px-2 py-1 text-xl font-bold transition-all hover:-translate-y-[2px] md:block dark:border-white ${
-                            selectedAnswerIndex === index
-                              ? "selected incorrect"
-                              : ""
-                          }`}
-                          style={{ cursor: "pointer" }}
-                        >
-                          <strong>{String.fromCharCode(65 + index)}</strong> -{" "}
-                          {option}
-                        </li>
-                      )
-                    )}
+                  {shuffledOptions.map((option: any, index: number) => (
+                    <li
+                      key={index}
+                      onClick={() => handleSelectAnswer(option)}
+                      className={`bg-white m-2 rounded-lg border-2 border-b-4 border-r-4 border-black px-2 py-1 text-xl font-bold transition-all hover:-translate-y-[2px] md:block dark:border-white 
+                          ${selectedAnswerIndex === index
+                          ? "selected incorrect"
+                          : ""
+                        }`}
+                      style={{ cursor: "pointer" }}
+                    >
+                      <strong>{String.fromCharCode(65 + index)}</strong> -{" "}
+                      {option}
+                    </li>
+                  )
+                  )}
                 </ul>
+
+                <div className="text-lg font-bold mb-4 text-center">Time left: {timer} seconds</div>
+                {/* Progress bar for the timer */}
+                <div className="relative pt-1">
+                  <div className="flex mb-2 items-center justify-between">
+                    <div>
+                      <span className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-teal-600 bg-teal-200">
+                        Time left: {timer} seconds
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex h-2 mb-4 overflow-hidden">
+                    <div
+                      className="w-full bg-teal-200"
+                      style={{ width: `${(timer / 10) * 100}%` }}
+                    ></div>
+                  </div>
+                </div>
               </>
             ) : (
               <div>Loading...</div>
@@ -219,7 +280,6 @@ const QuizPage: NextPage = () => {
       </div>
     );
   };
-
   const renderResults = () => {
     return (
       <div className="flex justify-center mt-6">
@@ -249,8 +309,8 @@ const QuizPage: NextPage = () => {
       {loading
         ? "Loading..."
         : quizCompleted
-        ? renderResults()
-        : renderQuestion()}
+          ? renderResults()
+          : renderQuestion()}
     </div>
   );
 };
