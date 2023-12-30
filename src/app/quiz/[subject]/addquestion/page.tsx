@@ -1,9 +1,12 @@
 "use client";
 import { useState } from "react";
+import useAuthModal from "../../../../../hooks/useAuthModal";
+import { useUser } from "../../../../../hooks/useUser";
 import { usePathname } from "next/navigation";
 import { supabase } from "../../../../lib/supabase";
-import router from "next/router";
 import Button from "@/components/Button";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const AddQuestionPage = () => {
   const pathName = usePathname();
@@ -15,37 +18,89 @@ const AddQuestionPage = () => {
   const [options, setOptions] = useState(["", "", "", ""]);
   const [correctOptionIndex, setCorrectOptionIndex] = useState(-1);
 
+  const { user } = useUser();
+  const authModal = useAuthModal();
+
+  const isValidUrl = (url: string) => {
+    // Regular expression for a valid URL
+    const urlRegex = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*\.(jpg|png)$/i;
+    return urlRegex.test(url);
+  };
+
+
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
 
-    const quizId = 5;
+    if (!user) {
+      // Open the authentication modal
+      authModal.onOpen();
+      return;
+    }
+
+
+    // Check if required fields are provided
+    if (!questionText.trim() || options.some(option => !option.trim()) || correctOptionIndex === -1) {
+      toast.error('Proszę uzupełnij wszystkie wymagane pola');
+      return;
+    }
 
     try {
+
+      // Validate content (optional field)
+      if (content && !isValidUrl(content)) {
+        toast.error('Proszę wprowadź poprawny adres url obrazka lub pozostaw puste pole');
+        return;
+      }
+
+      // Validate options length
+      if (options.some(option => option.length > 50)) {
+        toast.error('Opcje nie powinny składać się z więcej niż 50 znaków');
+        return;
+      }
+
+      // Validate correctOptionIndex
+      if (correctOptionIndex < 0 || correctOptionIndex >= options.length) {
+        toast.error('Wybierz poprawną odpowiedź z podanych.');
+        return;
+      }
+
       const optionsJSON = JSON.stringify(
         options.filter((option) => option.trim() !== "")
       );
 
-      // Add the question to the Supabase table
-      const { data, error } = await supabase.from("Questions").insert([
-        {
-          quiz_id: quizId,
-          question_text: questionText,
-          content: content,
-          correct_answer: options[correctOptionIndex],
-          options: optionsJSON,
-          approved: true,
-        },
-      ]);
+      const { data: quizData, error: quizError } = await supabase
+        .from("quizzes")
+        .select("quiz_id")
+        .eq("description", subject)
+        .single();
 
-      if (error) {
-        throw error;
+      if (quizError) {
+        throw quizError;
       }
+      if (quizData) {
+        // Add the question to the Supabase table
+        const { data, error } = await supabase.from("Questions").insert([
+          {
+            quiz_id: quizData.quiz_id,
+            question_text: questionText,
+            content: content,
+            correct_answer: options[correctOptionIndex],
+            options: optionsJSON,
+            approved: false,
+          },
+        ]);
 
+        if (error) {
+          throw error;
+        }
+      }
       // Redirect to a success page or do any other necessary actions
-      router.push(`/quiz/${subject}`);
+      toast.success('Pytanie dodane pomyślnie!');
+      //router.push(`/quiz/${subject}`);
     } catch (error) {
       console.error("Error adding question:", error);
       // Handle error, show a message, etc.
+      toast.error('Wystąpił problem z dodaniem pytania. Proszę spróbuj ponownie.');
     }
   };
 
@@ -64,6 +119,7 @@ const AddQuestionPage = () => {
                   type="text"
                   value={questionText}
                   onChange={(e) => setQuestionText(e.target.value)}
+                  placeholder="Wprowadź treść pytania"
                   className="border border-gray-400 p-2 w-full rounded-md font-normal bg-gray-100"
                   style={{
                     outline: "none",
@@ -77,6 +133,7 @@ const AddQuestionPage = () => {
                   type="text"
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
+                  placeholder="Wprowadź adres URL obrazka"
                   className="border border-gray-400 p-2 w-full rounded-md font-normal bg-gray-100"
                   style={{
                     outline: "none",
@@ -86,7 +143,6 @@ const AddQuestionPage = () => {
               </label>
               <label className="block mb-2">
                 <p className="mb-1"> Opcje: </p>
-
                 {options.map((option, index) => (
                   <div key={index} className="mb-2 font-normal">
                     <input
@@ -97,6 +153,7 @@ const AddQuestionPage = () => {
                         updatedOptions[index] = e.target.value;
                         setOptions(updatedOptions);
                       }}
+                      placeholder={`Opcja ${index + 1}`}
                       className="border border-gray-400 p-2 w-full rounded-md bg-gray-100"
                       style={{
                         outline: "none",
@@ -108,12 +165,12 @@ const AddQuestionPage = () => {
               </label>
               <label className="block mb-2 my-2">
                 <p className="mb-1"> Poprawna odpowiedź </p>
-
                 <select
                   value={correctOptionIndex}
                   onChange={(e) =>
                     setCorrectOptionIndex(parseInt(e.target.value, 10))
                   }
+                  placeholder="Wybierz poprawną odpowiedź"
                   className="border border-gray-400 p-2 w-full rounded-md font-normal bg-gray-100"
                   style={{
                     outline: "none",
@@ -145,3 +202,8 @@ const AddQuestionPage = () => {
 };
 
 export default AddQuestionPage;
+
+function isValidUrl(content: string) {
+  throw new Error("Function not implemented.");
+}
+

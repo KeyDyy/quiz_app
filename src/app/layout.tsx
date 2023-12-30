@@ -14,7 +14,8 @@ import SupabaseProvider from "../../providers/SupabaseProvider";
 import Notification from "@/components/Notifications";
 import { SidebarProvider } from "../../providers/SidebarContext";
 
-
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import Head from "next/head";
 
@@ -52,6 +53,8 @@ export default async function RootLayout({
 
             <SidebarProvider>
               <Navbar />
+              <ToastContainer position="top-right" autoClose={4000} hideProgressBar={false} newestOnTop={false} closeOnClick pauseOnFocusLoss draggable pauseOnHover />
+
               <Notification />
               <div className="flex-1 bg-gray-100">{children}</div>
 
