@@ -10,43 +10,41 @@ datasource db {
 }
 
 model GameInvitations {
-  invitation_id     String             @id @db.Uuid
-  sender_user_id    String             @db.Uuid
-  receiver_user_id  String             @db.Uuid
-  status            game_invite_status @default(Pending)
-  quiz_id           Int
-  multiplayer_games MultiplayerGame[]
-  quiz              quizzes            @relation(fields: [quiz_id], references: [quiz_id], onDelete: NoAction, onUpdate: NoAction)
-  users_receiver    public_users       @relation("game_invitations_receiver_user_idTousers", fields: [receiver_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users_sender      public_users       @relation("game_invitations_sender_user_idTousers", fields: [sender_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  sender_user_id   String             @db.Uuid
+  receiver_user_id String             @db.Uuid
+  status           game_invite_status @default(Pending)
+  quiz_id          Int
+  invitation_id    String             @id @db.Uuid
+  quiz             quizzes            @relation(fields: [quiz_id], references: [quiz_id], onDelete: NoAction, onUpdate: NoAction)
+  users_receiver   public_users       @relation("game_invitations_receiver_user_idTousers", fields: [receiver_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users_sender     public_users       @relation("game_invitations_sender_user_idTousers", fields: [sender_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@schema("public")
 }
 
 model MultiplayerGame {
-  game_id         String           @id @db.Uuid
-  quiz_id         Int?
-  invitation_id   String
-  start_time      DateTime?        @db.Timestamp(6)
-  end_time        DateTime?        @db.Timestamp(6)
-  winner_user_id  String?          @db.Uuid
-  game_answers    GameAnswers[]
-  game_invitation GameInvitations? @relation(fields: [invitation_id], references: [invitation_id], onDelete: NoAction, onUpdate: NoAction)
-  quiz            quizzes?         @relation(fields: [quiz_id], references: [quiz_id], onDelete: NoAction, onUpdate: NoAction)
+  quiz_id        Int?
+  start_time     DateTime?     @db.Timestamp(6)
+  end_time       DateTime?     @db.Timestamp(6)
+  winner_user_id String?       @db.Uuid
+  invitation_id  String
+  game_id        String        @id @db.Uuid
+  questions      Json?         @db.Json
+  game_answers   GameAnswers[]
+  quiz           quizzes?      @relation(fields: [quiz_id], references: [quiz_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@schema("public")
 }
 
 model GameAnswers {
   answer_id        Int             @id @default(autoincrement())
-  game_id          String          @db.Uuid
   user_id          String          @db.Uuid
+  game_id          String          @db.Uuid
   question_id      Int
-  selected_option  String
-  is_correct       Boolean
+  is_correct       Boolean[]
   multiplayer_game MultiplayerGame @relation(fields: [game_id], references: [game_id], onDelete: NoAction, onUpdate: NoAction)
-  user             public_users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   question         Questions       @relation(fields: [question_id], references: [question_id], onDelete: NoAction, onUpdate: NoAction)
+  user             public_users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@schema("public")
 }
@@ -59,8 +57,8 @@ model Questions {
   correct_answer String
   options        Json?
   approved       Boolean       @default(false)
-  quizzes        quizzes?      @relation(fields: [quiz_id], references: [quiz_id], onDelete: NoAction, onUpdate: NoAction)
   GameAnswers    GameAnswers[]
+  quizzes        quizzes       @relation(fields: [quiz_id], references: [quiz_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@schema("public")
 }
@@ -96,13 +94,13 @@ model public_users {
   full_name            String?
   avatar_url           String?           @default("https://t4.ftcdn.net/jpg/05/49/98/39/360_F_549983970_bRCkYfk0P6PP5fKbMhZMIb07mCJ6esXL.jpg")
   username             String?
-  friend_send          friends[]         @relation("friends1")
-  friend_rec           friends[]         @relation("friends2")
   game_answers         GameAnswers[]
   game_invite_receiver GameInvitations[] @relation("game_invitations_receiver_user_idTousers")
   game_invite_sender   GameInvitations[] @relation("game_invitations_sender_user_idTousers")
-  quizzes              quizzes[]
   statistics           Statistics[]
+  friend_send          friends[]         @relation("friends1")
+  friend_rec           friends[]         @relation("friends2")
+  quizzes              quizzes[]
   users                auth_users        @relation(fields: [id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@map("users")

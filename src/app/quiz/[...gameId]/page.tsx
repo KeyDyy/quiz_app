@@ -19,6 +19,12 @@ interface CountdownTimerProps {
     startTime: string; // Timestamp in string format, e.g., "2024-01-03T14:23:21.823"
 }
 
+interface Answer {
+    game_id: string;
+    user_id: string;
+    question_id: number;
+    // ... other properties if applicable
+}
 
 // interface questionsJson {
 //     question_id: number;
@@ -163,7 +169,7 @@ const MultiplayerGame: NextPage = () => {
 
         };
 
-        supabase
+        const channel = supabase
             .channel('table-db-changes')
             .on(
                 'postgres_changes',
@@ -298,7 +304,7 @@ const MultiplayerGame: NextPage = () => {
 
         // Start the timer when a new question is loaded and the first timer has expired
         if (currentQuestion && timeRemaining === 'Countdown expired') {
-            setTimer(30); // Reset timer for each new question
+            setTimer(10); // Reset timer for each new question
             timerInterval = setInterval(decrementTimer, 1000); // Update timer every second
         }
 
@@ -316,67 +322,84 @@ const MultiplayerGame: NextPage = () => {
     }, [timer]);
 
 
-    const handleSelectAnswer = (selectedAnswer: string) => {
+    const handleSelectAnswer = async (selectedAnswer: string) => {
         if (!answered) {
             const isCorrectAnswer = selectedAnswer === currentQuestion.correct_answer;
 
-            // Update the counters based on the correctness of the selected answer
-            if (isCorrectAnswer) {
-                setCorrectAnswers((prevCorrectAnswers) => prevCorrectAnswers + 1);
-            } else {
-                setIncorrectAnswers((prevIncorrectAnswers) => prevIncorrectAnswers + 1);
-            }
-
-            // Update the score based on the correctness of the selected answer
-            setScore((prevScore) =>
-                isCorrectAnswer ? prevScore + 1 : prevScore - 1
-            );
-
-            console.log(score);
-
-            // Check if this is the last question
-            if (currentQuestionIndex === questions.length - 1) {
-                setIsLastQuestion(true);
-            }
-
-            // Mark the question as answered
+            // Update the state to reflect the answer
             setAnswered(true);
-            handleNextQuestion();
+
+            // Insert the answer into the database
+            await supabase
+                .from("GameAnswers")
+                .upsert([
+                    {
+                        game_id: gameId,
+                        user_id: user?.id,
+                        question_id: currentQuestion.question_id,
+                        is_correct: [isCorrectAnswer],
+                    },
+                ]);
+
+            const channel = supabase
+                .channel('table-db-changes')
+                .on(
+                    'postgres_changes',
+                    {
+                        event: '*',
+                        schema: 'public',
+                        table: 'GameAnswers',
+                    },
+                    (payload) => {
+                        hasBothPlayersAnswered().then((bothAnswered) => {
+                            if (bothAnswered) {
+                                handleNextQuestion();
+                            }
+                        });
+                    }
+                )
+                .subscribe();
+
+
+            // Check if both players have answered
+            const bothAnswered = await hasBothPlayersAnswered();
+
+            // If both players have answered, move to the next question
+            if (bothAnswered) {
+                handleNextQuestion();
+            }
         }
     };
 
-    const handleNextQuestion = () => {
-        //console.log('Handling next question...');
-        if (isLastQuestion) {
-            // console.log('Last question reached.');
-            // Handle the end of the quiz (e.g., save score to the server)
-            if (!user || !user.id) {
-                //console.log("Użytkownik nie jest zalogowany lub brakuje identyfikatora.");
-            } else {
-                // Insert your logic here to save the score to the server
-                setQuizCompleted(true);
-            }
+    const handleNextQuestion = async () => {
+        const nextQuestionIndex = currentQuestionIndex + 1;
+
+        if (nextQuestionIndex < questions.length) {
+            setCurrentQuestionIndex(nextQuestionIndex);
+            setSelectedAnswerIndex(null);
+            setAnswered(false);
+            setIsLastQuestion(nextQuestionIndex === questions.length - 1);
         } else {
-            //console.log('Moving to the next question...');
-            const nextQuestionIndex = currentQuestionIndex + 1;
-
-            // Check if there are more questions
-            if (nextQuestionIndex < questions.length) {
-                setCurrentQuestionIndex(nextQuestionIndex);
-                setSelectedAnswerIndex(null);
-                setAnswered(false);
-                setIsLastQuestion(nextQuestionIndex === questions.length - 1);
-            } else {
-                // If there are no more questions, handle the end of the quiz
-                setQuizCompleted(true);
-            }
+            // Handle the end of the quiz, save the final scores, etc.
+            setQuizCompleted(true);
         }
     };
 
+    const hasBothPlayersAnswered = async () => {
+        // Perform a real-time query on the database to check if both players have answered the current question
+        const { data, error } = await supabase
+            .from("GameAnswers")
+            .select("user_id")
+            .eq("game_id", gameId)
+            .eq("question_id", currentQuestion.question_id);
 
-    const handlePlayAgain = () => {
-        // Refresh the page or perform any other logic
-        router.push("/");
+        if (error) {
+            console.error("Error checking if both players have answered:", error);
+            return false;
+        }
+
+        // Check if both players have answered by comparing the number of distinct user IDs
+        return data && new Set(data.map((answer) => answer.user_id)).size === 2;
     };
 
 
@@ -393,6 +416,10 @@ const MultiplayerGame: NextPage = () => {
         }
     }, [currentQuestion]);
 
+    const handlePlayAgain = () => {
+        // Refresh the page or perform any other logic
+        router.push("/");
+    };
 
     const renderQuestion = () => {
 
