@@ -4,21 +4,14 @@ import { useUser } from "../../hooks/useUser";
 import { supabase } from "../lib/supabase";
 import "@/app/friends/index.css";
 import { useSidebar } from "../../providers/SidebarContext";
-import FriendInvite from "./FriendSearch";
+import { useRouter } from "next/navigation";
+import { v4 as uuidv4 } from 'uuid';
 //import GameInvitation from './GameInvitation';
 
-interface Friend {
-  user1: string;
-  user2: any;
-  userId: string;
-  username: string;
-  status: string;
-  avatar?: string;
-}
 
 interface GameInvitation {
   invitation_id: number;
-  game_id?: number | null;
+  game_id: string;
   sender_user_id: string;
   receiver_user_id: string;
   status: "Pending" | "Accepted" | "Rejected";
@@ -26,18 +19,18 @@ interface GameInvitation {
 
 const Notifications = () => {
   const { user } = useUser();
-  const { showSidebar } = useSidebar();
-  const { toggleSidebar } = useSidebar();
+  const { toggleSidebar, showSidebar } = useSidebar();
+  const router = useRouter();
   const [pendingInvitations, setPendingInvitations] = useState<
     GameInvitation[]
   >([]); // Zainicjowanie jako pusta tablica
 
   useEffect(() => {
-    if (user && user.id) {
+    if (showSidebar && user && user.id) {
+      // Refresh notifications when the sidebar is expanded
       checkGameInvitations(user.id);
     }
-  }, [user]);
-
+  }, [showSidebar, user]);
   const checkGameInvitations = async (userId: string) => {
     try {
       if (!userId) {
@@ -46,7 +39,7 @@ const Notifications = () => {
       }
 
       const { data, error } = await supabase
-        .from("game_invitations") // Ustal typ danych
+        .from("GameInvitations") // Ustal typ danych
         .select()
         .eq("receiver_user_id", userId)
         .eq("status", "Pending");
@@ -70,27 +63,74 @@ const Notifications = () => {
 
   const acceptGameInvitation = async (invitationId: number) => {
     try {
-      const { data, error } = await supabase
-        .from("game_invitations") // Ustal typ danych
-        .update({ status: "Accepted" })
-        .eq("invitation_id", invitationId); // Użyj 'invitation_id' zamiast 'id'
+      // Fetch the game invitation details
+      const { data: invitation, error: invitationError } = await supabase
+        .from("GameInvitations")
+        .select("*")
+        .eq("invitation_id", invitationId)
+        .single();
 
-      if (error) {
-        console.error("Error accepting game invitation:", error);
-      } else {
-        console.log("Zaproszenie do gry zostało zaakceptowane.");
-        // Odśwież listę zaproszeń
-        checkGameInvitations(user?.id || "");
+      if (invitationError) {
+        console.error("Error fetching game invitation details:", invitationError);
+        return;
       }
+
+      // Update the game invitation status to "Accepted"
+      const { error: updateError } = await supabase
+        .from("GameInvitations")
+        .update({ status: "Accepted" })
+        .eq("invitation_id", invitationId);
+
+      if (updateError) {
+        console.error("Error accepting game invitation:", updateError);
+        return;
+      }
+
+      // Retrieve data from MultiplayerGame based on invitation_id
+      const { data: multiplayerGameData, error: multiplayerGameError } = await supabase
+        .from("MultiplayerGame")
+        .select("*")
+        .eq("invitation_id", invitationId)
+        .single();
+
+      if (multiplayerGameError) {
+        console.error("Error retrieving MultiplayerGame data:", multiplayerGameError);
+        return;
+      }
+
+      if (multiplayerGameData) {
+        // Update the start_time field in MultiplayerGame
+        const { error: updateStartTimeError } = await supabase
+          .from("MultiplayerGame")
+          .update({
+            start_time: new Date(),
+          })
+          .eq("invitation_id", invitationId);
+
+        if (updateStartTimeError) {
+          console.error("Error updating start_time in MultiplayerGame:", updateStartTimeError);
+          return;
+        }
+
+        // Redirect to the multiplayer game page with the obtained game_id
+        router.push(`/quiz/multi/${multiplayerGameData.game_id}`);
+        toggleSidebar();
+      } else {
+        console.error("Error: MultiplayerGame data not found for invitation_id:", invitationId);
+      }
+
+      // Refresh the list of game invitations
+      checkGameInvitations(user?.id || "");
     } catch (error) {
       console.error("Error accepting game invitation:", error);
     }
   };
 
+
   const rejectGameInvitation = async (invitationId: number) => {
     try {
       const { data, error } = await supabase
-        .from("game_invitations") // Ustal typ danych
+        .from("GameInvitations") // Ustal typ danych
         .delete()
         .eq("invitation_id", invitationId); // Użyj 'invitation_id' zamiast 'id'
 
@@ -106,109 +146,24 @@ const Notifications = () => {
     }
   };
 
-  const createGameInvitation = async (
-    receiverUserId: any,
-    quizLink: string | undefined
-  ) => {
-    try {
-      const senderUserId = user?.id;
-      let quizDesc = "";
 
-      // Check if a quiz link is provided
-      if (quizLink) {
-        const quizDescMatch = quizLink.match(/\/quiz\/(\w+)/);
-        if (quizDescMatch) {
-          quizDesc = quizDescMatch[1];
-        }
-      }
 
-      // If quizDesc is not found in the link, show a list of available descriptions
-      if (!quizDesc) {
-        const { data: quizzes, error: quizError } = await supabase
-          .from("quizzes")
-          .select("description");
-
-        if (quizError) {
-          console.error("Error fetching quizzes:", quizError);
-          return;
-        }
-
-        if (quizzes && quizzes.length > 0) {
-          // Display available quiz descriptions and let the user choose
-          console.log("Choose a quiz description:");
-          quizzes.forEach((quiz) => {
-            console.log(`- ${quiz.description}`);
-          });
-          // You can implement the logic for the user to choose a quiz description here
-          // Set the chosen quizDesc based on the user's choice
-        } else {
-          console.log("No quiz descriptions available.");
-          return;
-        }
-      }
-
-      // Check if a pending invitation already exists between the sender and receiver
-      const { data: existingInvitations, error: existingError } = await supabase
-        .from("game_invitations")
-        .select()
-        .eq("sender_user_id", senderUserId)
-        .eq("receiver_user_id", receiverUserId)
-        .eq("status", "Pending");
-
-      if (existingError) {
-        console.error("Error checking existing invitations:", existingError);
-        return;
-      }
-
-      if (existingInvitations.length > 0) {
-        // Handle the case where there's an existing pending invitation
-        console.log(
-          "There is already a pending invitation between you and this user."
-        );
-        return;
-      }
-
-      // Create a new game invitation with the chosen quizDesc
-      const { data, error } = await supabase.from("game_invitations").upsert([
-        {
-          sender_user_id: senderUserId,
-          receiver_user_id: receiverUserId,
-          status: "Pending",
-          quiz_desc: quizDesc, // Add quiz_desc to the invitation
-        },
-      ]);
-
-      if (error) {
-        console.error("Error creating game invitation:", error);
-      } else {
-        // Handle successful invitation creation
-        console.log("Game invitation sent successfully.");
-      }
-    } catch (error) {
-      console.error("Error creating game invitation:", error);
-    }
-  };
-
-  const handleToggleSidebar = () => {
-    toggleSidebar();
-  };
 
   return (
     <div className="relative">
       <div className="relative">
         {user && (
           <div
-            className={`right-sidebar ${
-              showSidebar ? "show" : "hide"
-            } sm:w-64 md:w-72 lg:w-96 xl:w-120 flex flex-col h-screen`}
+            className={`right-sidebar ${showSidebar ? "show" : "hide"
+              } sm:w-64 md:w-72 lg:w-96 xl:w-120 flex flex-col h-screen`}
           >
             <div className="flex-1 overflow-y-auto">
               <h2 className="mt-14 text-xl font-bold flex items-center justify-center">Powiadomienia</h2>
-              <div className="flex items-center justify-center gap-4 mt-4">
+              <div className="mt-4">
                 {pendingInvitations.map((invitation) => (
                   <div
                     key={invitation.invitation_id}
-                    className="p-4 bg-gray-100 rounded border border-gray-200"
+                    className="p-4 bg-gray-100 rounded border border-gray-200 mb-4"
                   >
                     <p>{invitation.sender_user_id} zaprasza Cię do gry</p>
                     <div className="mt-4 flex items-center justify-center gap-4">
@@ -238,6 +193,7 @@ const Notifications = () => {
       </div>
     </div>
   );
+
 };
 
 export default Notifications;

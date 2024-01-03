@@ -3,8 +3,8 @@ import React, { useEffect, useState } from "react";
 import { useUser } from "../../hooks/useUser";
 import { supabase } from "../lib/supabase";
 import Button from "./Button";
-import { useSidebar } from "../../providers/SidebarContext";
-import FriendInvite from "./FriendSearch";
+import { toast } from 'react-toastify';
+
 
 interface Friend {
   user1: string;
@@ -18,11 +18,8 @@ interface Friend {
 const FriendList = () => {
   const { user } = useUser();
   const [friends, setFriends] = useState<Friend[]>([]);
-  const [showAccepted, setShowAccepted] = useState(true);
   const [showPending, setShowPending] = useState(false);
 
-  const [showPendingOptions, setShowPendingOptions] = useState(false);
-  const { toggleSidebar } = useSidebar();
 
   useEffect(() => {
     if (user) {
@@ -140,79 +137,6 @@ const FriendList = () => {
       }
     } catch (error) {
       console.error("Error accepting friend:", error);
-    }
-  };
-  const createGameInvitation = async (
-    receiverUserId: any,
-    quizLink: string | undefined
-  ) => {
-    try {
-      const senderUserId = user?.id;
-      let quizDesc = "";
-
-      if (quizLink) {
-        const quizDescMatch = quizLink.match(/\/quiz\/(\w+)/);
-        if (quizDescMatch) {
-          quizDesc = quizDescMatch[1];
-        }
-      }
-
-      if (!quizDesc) {
-        const { data: quizzes, error: quizError } = await supabase
-          .from("quizzes")
-          .select("description");
-
-        if (quizError) {
-          console.error("Error fetching quizzes:", quizError);
-          return;
-        }
-
-        if (quizzes && quizzes.length > 0) {
-          console.log("Choose a quiz description:");
-          quizzes.forEach((quiz) => {
-            console.log(`- ${quiz.description}`);
-          });
-        } else {
-          console.log("No quiz descriptions available.");
-          return;
-        }
-      }
-
-      const { data: existingInvitations, error: existingError } = await supabase
-        .from("game_invitations")
-        .select()
-        .eq("sender_user_id", senderUserId)
-        .eq("receiver_user_id", receiverUserId)
-        .eq("status", "Pending");
-
-      if (existingError) {
-        console.error("Error checking existing invitations:", existingError);
-        return;
-      }
-
-      if (existingInvitations.length > 0) {
-        console.log(
-          "There is already a pending invitation between you and this user."
-        );
-        return;
-      }
-
-      const { data, error } = await supabase.from("game_invitations").upsert([
-        {
-          sender_user_id: senderUserId,
-          receiver_user_id: receiverUserId,
-          status: "Pending",
-          quiz_desc: quizDesc,
-        },
-      ]);
-
-      if (error) {
-        console.error("Error creating game invitation:", error);
-      } else {
-        console.log("Game invitation sent successfully.");
-      }
-    } catch (error) {
-      console.error("Error creating game invitation:", error);
     }
   };
 

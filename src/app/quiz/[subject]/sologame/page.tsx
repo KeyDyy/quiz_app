@@ -1,12 +1,11 @@
 // pages/quiz.tsx
 "use client";
 import { useState, useEffect } from "react";
-import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import { NextPage } from "next";
-import { supabase } from "../../../../lib/supabase";
-import { useUser } from "../../../../../hooks/useUser";
+import { supabase } from "@/lib/supabase";
+import { useUser } from "@/../hooks/useUser";
 import { useRouter, usePathname } from "next/navigation";
-import Button from "../../../../components/Button";
+import Button from "@/components/Button";
 import {
   Card,
   CardContent,
@@ -48,6 +47,16 @@ const QuizPage: NextPage = () => {
 
   const subject = match ? match[1] : null;
   const currentQuestion = questions[currentQuestionIndex];
+
+
+  // useEffect(() => {
+  //   if (!user) {
+  //     // Open the authentication modal
+  //     router.push("/");
+  //     return;
+  //   }
+  // }
+  // )
 
   useEffect(() => {
     const fetchQuestions = async () => {

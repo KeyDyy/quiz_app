@@ -1,8 +1,12 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { useUser } from "../../hooks/useUser";
-import { supabase } from "../lib/supabase";
+import { useUser } from "@/../hooks/useUser";
+import { supabase } from "@/lib/supabase";
 import Button from "./Button";
+import { toast } from 'react-toastify';
+import { usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { v4 as uuidv4 } from 'uuid';
 
 interface Friend {
   user1: string;
@@ -16,6 +20,12 @@ interface Friend {
 const FriendGameInvite = () => {
   const { user } = useUser();
   const [friends, setFriends] = useState<Friend[]>([]);
+  const router = useRouter();
+  const pathName = usePathname();
+
+  const match = pathName.match(/\/quiz\/([^/]+)/);
+
+  const subject = match ? match[1] : null;
 
   useEffect(() => {
     if (user) {
@@ -71,88 +81,84 @@ const FriendGameInvite = () => {
     }
   };
 
-  const createGameInvitation = async (
-    receiverUserId: any,
-    quizLink: string | undefined
-  ) => {
+  const createGameInvitation = async (receiverUserId: any) => {
     try {
-      const senderUserId = user?.id; // Assuming you have the sender's user ID
-      let quizDesc = "";
+      const { data: quizData, error: quizError } = await supabase
+        .from('quizzes')
+        .select('quiz_id')
+        .eq('description', subject)
+        .single();
 
-      // Check if a quiz link is provided
-      if (quizLink) {
-        const quizDescMatch = quizLink.match(/\/quiz\/(\w+)/);
-        if (quizDescMatch) {
-          quizDesc = quizDescMatch[1];
-        }
-      }
-
-      // If quizDesc is not found in the link, show a list of available descriptions
-      if (!quizDesc) {
-        const { data: quizzes, error: quizError } = await supabase
-          .from("quizzes")
-          .select("description");
-
-        if (quizError) {
-          console.error("Error fetching quizzes:", quizError);
-          return;
-        }
-
-        if (quizzes && quizzes.length > 0) {
-          // Display available quiz descriptions and let the user choose
-          console.log("Choose a quiz description:");
-          quizzes.forEach((quiz) => {
-            console.log(`- ${quiz.description}`);
-          });
-          // You can implement the logic for the user to choose a quiz description here
-          // Set the chosen quizDesc based on the user's choice
-        } else {
-          console.log("No quiz descriptions available.");
-          return;
-        }
+      if (quizError) {
+        throw quizError;
       }
 
       // Check if a pending invitation already exists between the sender and receiver
       const { data: existingInvitations, error: existingError } = await supabase
-        .from("game_invitations")
+        .from('GameInvitations')
         .select()
-        .eq("sender_user_id", senderUserId)
-        .eq("receiver_user_id", receiverUserId)
-        .eq("status", "Pending");
+        .eq('sender_user_id', user?.id)
+        .eq('receiver_user_id', receiverUserId)
+        .eq('status', 'Pending');
 
       if (existingError) {
-        console.error("Error checking existing invitations:", existingError);
+        console.error('Error checking existing invitations:', existingError);
         return;
       }
 
       if (existingInvitations.length > 0) {
         // Handle the case where there's an existing pending invitation
-        console.log(
-          "There is already a pending invitation between you and this user."
-        );
+        toast.error('There is already a pending invitation between you and this user.');
+        return;
+      }
+      let invitation_id = uuidv4();
+      // Create a new game invitation with the chosen quizDesc
+      const { data: invitationData, error: invitationError } = await supabase
+        .from('GameInvitations')
+        .upsert([
+          {
+            invitation_id: invitation_id,
+            sender_user_id: user?.id,
+            receiver_user_id: receiverUserId,
+            status: 'Pending',
+            quiz_id: quizData.quiz_id, // Add quiz_id to the invitation
+          },
+        ]);
+
+      if (invitationError) {
+        console.error('Error creating game invitation:', invitationError);
         return;
       }
 
-      // Create a new game invitation with the chosen quizDesc
-      const { data, error } = await supabase.from("game_invitations").upsert([
-        {
-          sender_user_id: senderUserId,
-          receiver_user_id: receiverUserId,
-          status: "Pending",
-          quiz_desc: quizDesc, // Add quiz_desc to the invitation
-        },
-      ]);
+      let game_id = uuidv4();
+      // Use the obtained invitation_id to create a record in the MultiplayerGame table
+      const { data: multiplayerGameData, error: multiplayerGameError } = await supabase
+        .from('MultiplayerGame')
+        .insert({
+          game_id: game_id,
+          quiz_id: quizData.quiz_id,
+          invitation_id: invitation_id, // Use the obtained invitation_id
+          //start_time: new Date(),
+          // You may need to adjust the other fields based on your requirements
+        });
 
-      if (error) {
-        console.error("Error creating game invitation:", error);
-      } else {
-        // Handle successful invitation creation
-        console.log("Game invitation sent successfully.");
+      if (multiplayerGameError) {
+        console.error('Error creating MultiplayerGame record:', multiplayerGameError);
+        return;
       }
+
+
+      if (game_id) {
+        router.push(`/quiz/multi/${game_id}`);
+      }
+
+      // Handle successful invitation creation
+      toast.success('Game invitation sent successfully.');
     } catch (error) {
-      console.error("Error creating game invitation:", error);
+      console.error('Error creating game invitation:', error);
     }
   };
+
 
   return (
     <div className="relative flex bg-gray-100 dark:bg-gray-900">
@@ -187,7 +193,6 @@ const FriendGameInvite = () => {
                           onClick={() =>
                             createGameInvitation(
                               friend.userId,
-                              window.location.pathname
                             )
                           }
                         >

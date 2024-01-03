@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { supabase } from "../lib/supabase";
 import { useUser } from "../../hooks/useUser";
 import { Button } from "./ui/button";
+import { toast } from 'react-toastify';
 
 type FoundUser = {
   id: string;
@@ -52,8 +53,8 @@ const InviteFriend = () => {
   const inviteFriend = async () => {
     if (foundUser && user) {
       try {
-        console.log("user object:", user); // Debugging statement to inspect the user object
-        console.log("user ID", user.id);
+        //console.log("user object:", user); // Debugging statement to inspect the user object
+        //console.log("user ID", user.id);
 
         // Check if an invite already exists from user1 to user2 with status "Pending"
         const existingInviteUser1ToUser2 = await supabase
@@ -77,7 +78,7 @@ const InviteFriend = () => {
         ) {
           console.log("Friend invitation already exists.");
           // Show an alert or handle this case as needed.
-          alert("Friend invitation already exists.");
+          toast.error("Zaproszenie do znajomych już istnieje");
         } else {
           // If no existing invite is found, create a new record in the "friends" table.
           const { error } = await supabase.from("friends").upsert([
@@ -91,7 +92,7 @@ const InviteFriend = () => {
           if (error) {
             console.error("Error sending friend invitation:", error);
           } else {
-            console.log("Invitation sent successfully.");
+            toast.success("Zaproszenie wysłane pomyślnie.");
           }
         }
       } catch (error) {
