@@ -49,6 +49,7 @@
     "tailwindcss-animate": "^1.0.7",
     "types": "^0.1.1",
     "uniqid": "^5.4.0",
+    "update": "^0.7.4",
     "zod": "^3.22.4",
     "zustand": "^4.4.4"
   },

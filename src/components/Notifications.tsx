@@ -5,9 +5,6 @@ import { supabase } from "../lib/supabase";
 import "@/app/friends/index.css";
 import { useSidebar } from "../../providers/SidebarContext";
 import { useRouter } from "next/navigation";
-import { v4 as uuidv4 } from 'uuid';
-//import GameInvitation from './GameInvitation';
-
 
 interface GameInvitation {
   invitation_id: number;
@@ -24,6 +21,9 @@ const Notifications = () => {
   const [pendingInvitations, setPendingInvitations] = useState<
     GameInvitation[]
   >([]); // Zainicjowanie jako pusta tablica
+  const [senderUser, setSenderUser] = useState<{
+    [key: string]: { id: string; username: string };
+  }>({});
 
   useEffect(() => {
     if (showSidebar && user && user.id) {
@@ -31,6 +31,7 @@ const Notifications = () => {
       checkGameInvitations(user.id);
     }
   }, [showSidebar, user]);
+
   const checkGameInvitations = async (userId: string) => {
     try {
       if (!userId) {
@@ -55,6 +56,23 @@ const Notifications = () => {
         return;
       }
 
+      const senderUserIds = data.map((invitation) => invitation.sender_user_id);
+      const { data: senderUsers, error: senderUserError } = await supabase
+        .from("users")
+        .select("id, username")
+        .in("id", senderUserIds);
+
+      if (senderUserError) {
+        console.error("Error fetching sender user details:", senderUserError);
+        return;
+      }
+      const senderUserMap: { [key: string]: { id: string; username: string } } =
+        {};
+      senderUsers.forEach((user) => {
+        senderUserMap[user.id] = user;
+      });
+
+      setSenderUser(senderUserMap);
       setPendingInvitations(data);
     } catch (error) {
       console.error("Error checking game invitations:", error);
@@ -71,7 +89,10 @@ const Notifications = () => {
         .single();
 
       if (invitationError) {
-        console.error("Error fetching game invitation details:", invitationError);
+        console.error(
+          "Error fetching game invitation details:",
+          invitationError
+        );
         return;
       }
 
@@ -87,14 +108,18 @@ const Notifications = () => {
       }
 
       // Retrieve data from MultiplayerGame based on invitation_id
-      const { data: multiplayerGameData, error: multiplayerGameError } = await supabase
-        .from("MultiplayerGame")
-        .select("*")
-        .eq("invitation_id", invitationId)
-        .single();
+      const { data: multiplayerGameData, error: multiplayerGameError } =
+        await supabase
+          .from("MultiplayerGame")
+          .select("*")
+          .eq("invitation_id", invitationId)
+          .single();
 
       if (multiplayerGameError) {
-        console.error("Error retrieving MultiplayerGame data:", multiplayerGameError);
+        console.error(
+          "Error retrieving MultiplayerGame data:",
+          multiplayerGameError
+        );
         return;
       }
 
@@ -108,7 +133,10 @@ const Notifications = () => {
           .eq("invitation_id", invitationId);
 
         if (updateStartTimeError) {
-          console.error("Error updating start_time in MultiplayerGame:", updateStartTimeError);
+          console.error(
+            "Error updating start_time in MultiplayerGame:",
+            updateStartTimeError
+          );
           return;
         }
 
@@ -116,7 +144,10 @@ const Notifications = () => {
         router.push(`/quiz/multi/${multiplayerGameData.game_id}`);
         toggleSidebar();
       } else {
-        console.error("Error: MultiplayerGame data not found for invitation_id:", invitationId);
+        console.error(
+          "Error: MultiplayerGame data not found for invitation_id:",
+          invitationId
+        );
       }
 
       // Refresh the list of game invitations
@@ -125,7 +156,6 @@ const Notifications = () => {
       console.error("Error accepting game invitation:", error);
     }
   };
-
 
   const rejectGameInvitation = async (invitationId: number) => {
     try {
@@ -146,26 +176,31 @@ const Notifications = () => {
     }
   };
 
-
-
-
   return (
     <div className="relative">
       <div className="relative">
         {user && (
           <div
-            className={`right-sidebar ${showSidebar ? "show" : "hide"
-              } sm:w-64 md:w-72 lg:w-96 xl:w-120 flex flex-col h-screen`}
+            className={`right-sidebar ${
+              showSidebar ? "show" : "hide"
+            } sm:w-64 md:w-72 lg:w-96 xl:w-120 flex flex-col h-screen`}
           >
             <div className="flex-1 overflow-y-auto">
-              <h2 className="mt-14 text-xl font-bold flex items-center justify-center">Powiadomienia</h2>
+              <h2 className="mt-14 text-xl font-bold flex items-center justify-center">
+                Powiadomienia
+              </h2>
               <div className="mt-4">
                 {pendingInvitations.map((invitation) => (
                   <div
                     key={invitation.invitation_id}
                     className="p-4 bg-gray-100 rounded border border-gray-200 mb-4"
                   >
-                    <p>{invitation.sender_user_id} zaprasza Cię do gry</p>
+                    <p className="font-bold">
+                      {(senderUser as any)[invitation.sender_user_id]
+                        ?.username || "Nieznany użytkownik"}{" "}
+                      <span className="font-normal">zaprasza Cię do gry</span>
+                    </p>
+
                     <div className="mt-4 flex items-center justify-center gap-4">
                       <button
                         onClick={() =>
@@ -193,7 +228,6 @@ const Notifications = () => {
       </div>
     </div>
   );
-
 };
 
 export default Notifications;
