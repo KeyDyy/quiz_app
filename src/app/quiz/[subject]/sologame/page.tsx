@@ -48,7 +48,6 @@ const QuizPage: NextPage = () => {
   const subject = match ? match[1] : null;
   const currentQuestion = questions[currentQuestionIndex];
 
-
   // useEffect(() => {
   //   if (!user) {
   //     // Open the authentication modal
@@ -86,12 +85,14 @@ const QuizPage: NextPage = () => {
 
           if (questionsData) {
             // Parse options from JSON structure or use as is if already an array
-            const questionsWithParsedOptions = questionsData.map((question) => ({
-              ...question,
-              options: Array.isArray(question.options)
-                ? question.options
-                : JSON.parse(question.options || "[]"), // Default to an empty array if options is null
-            }));
+            const questionsWithParsedOptions = questionsData.map(
+              (question) => ({
+                ...question,
+                options: Array.isArray(question.options)
+                  ? question.options
+                  : JSON.parse(question.options || "[]"), // Default to an empty array if options is null
+              })
+            );
 
             setQuestions(questionsWithParsedOptions);
           }
@@ -226,7 +227,7 @@ const QuizPage: NextPage = () => {
                 {currentQuestion.content && (
                   <div className="question-image">
                     {currentQuestion.content.endsWith(".jpg") ||
-                      currentQuestion.content.endsWith(".png") ? (
+                    currentQuestion.content.endsWith(".png") ? (
                       <img
                         src={currentQuestion.content}
                         alt="Question"
@@ -251,10 +252,11 @@ const QuizPage: NextPage = () => {
                       key={index}
                       onClick={() => handleSelectAnswer(option)}
                       className={`bg-white m-2 rounded-lg border-2 border-b-4 border-r-4 border-black px-2 py-1 text-xl font-bold transition-all hover:-translate-y-[2px] md:block dark:border-white 
-                          ${selectedAnswerIndex === index
-                          ? "selected incorrect"
-                          : ""
-                        }`}
+                          ${
+                            selectedAnswerIndex === index
+                              ? "selected incorrect"
+                              : ""
+                          }`}
                       style={{ cursor: "pointer" }}
                     >
                       <strong>{String.fromCharCode(65 + index)}</strong> -{" "}
@@ -270,8 +272,10 @@ const QuizPage: NextPage = () => {
                 <div className="relative pt-1">
                   <div className="flex h-3 mb-4 m-1 m overflow-hidden border-2 border-gray-800 rounded-xl">
                     <div
-                      className="w-full bg-black "
-                      style={{ width: `${(timer / 10) * 100}%` }}
+                      className="w-full bg-black transition-all duration-1000 ease-linear"
+                      style={{
+                        width: `${timer === 10 ? "100%" : `${(timer - 1) * 11}%`}`,
+                      }}
                     ></div>
                   </div>
                 </div>
@@ -313,8 +317,8 @@ const QuizPage: NextPage = () => {
       {loading
         ? "Loading..."
         : quizCompleted
-          ? renderResults()
-          : renderQuestion()}
+        ? renderResults()
+        : renderQuestion()}
     </div>
   );
 };
