@@ -661,7 +661,7 @@ const MultiplayerGame: NextPage = () => {
                     </CardHeader>
                     <CardContent>
                         <CardDescription className="text-black">
-                            Twój wynik
+                            Wynik {senderUsername}:
                         </CardDescription>
                         <CardDescription className="text-black">
                             Poprawne odpowiedzi: {scores[senderUserId]}
@@ -673,7 +673,7 @@ const MultiplayerGame: NextPage = () => {
 
                     <CardContent>
                         <CardDescription className="text-black">
-                            Wynik przeciwnika
+                            Wynik {receiverUsername}:
                         </CardDescription>
                         <CardDescription className="text-black">
                             Poprawne odpowiedzi: {scores[receiverUserId]}
