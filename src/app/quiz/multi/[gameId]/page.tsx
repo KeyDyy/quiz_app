@@ -538,15 +538,15 @@ const MultiplayerGame: NextPage = () => {
     if (!receiverConnected || startTime === null) {
       // Display loading screen while waiting for the receiver user to connect
       return (
-        <div className="flex justify-center items-center h-screen">
-          <p className="text-xl">Oczekiwanie na drugiego gracza...</p>
+        <div className="flex justify-center items-center pt-80">
+          <p className="text-xl px-4">Oczekiwanie na drugiego gracza...</p>
         </div>
       );
     } // Display countdown timer before starting the quiz
     else if (timeRemaining != "Licznik") {
       return (
-        <div className="flex justify-center items-center h-screen">
-          <p className="text-xl">
+        <div className="flex justify-center items-center pt-80">
+          <p className="text-xl px-4">
             Przygotuj się! Twój Quiz zacznie się za {timeRemaining}
           </p>
         </div>
