@@ -4,7 +4,8 @@ import { strict_output } from "@/lib/openAi";
 import { quizCreationSchemaAI } from "@/lib/formSchemaAI";
 
 export const runtime = "nodejs";
-export const maxDuration = 50000;
+export const maxDuration = 10;
+//export const maxDuration = 50000;
 
 export async function POST(req: Request, res: Response) {
   try {
