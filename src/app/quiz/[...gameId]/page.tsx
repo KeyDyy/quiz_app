@@ -308,7 +308,7 @@ const MultiplayerGame: NextPage = () => {
 
         // Start the timer when a new question is loaded and the first timer has expired
         if (currentQuestion && timeRemaining === 'Licznik') {
-            setTimer(30); // Reset timer for each new question
+            setTimer(10); // Reset timer for each new question
             timerInterval = setInterval(decrementTimer, 1000); // Update timer every second
         }
 
