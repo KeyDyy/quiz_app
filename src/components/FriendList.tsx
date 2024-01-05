@@ -201,7 +201,7 @@ const FriendList = () => {
                     .map((friend) => (
                       <li
                         key={friend.userId}
-                        className="flex items-center justify-between mb-4 bg-gray-200 border border-gray-400 p-2 rounded-lg w-full md:w-3/4 lg:w-3/4"
+                        className="flex items-center justify-between mb-4 bg-gray-200 border border-gray-400 p-2 rounded-lg w-full"
                       >
                         <img
                           src={

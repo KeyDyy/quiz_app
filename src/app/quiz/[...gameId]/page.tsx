@@ -38,8 +38,10 @@ interface Answer {
 const MultiplayerGame: NextPage = () => {
     const { user } = useUser();
     const router = useRouter();
+    const [senderUserId, setSenderUserId] = useState("");
     const [senderUsername, setSenderUsername] = useState("");
     const [senderAvatarUrl, setSenderAvatarUrl] = useState("");
+    const [receiverUserId, setReceiverUserId] = useState("");
     const [receiverUsername, setReceiverUsername] = useState("");
     const [receiverAvatarUrl, setReceiverAvatarUrl] = useState("");
     const [invitationStatus, setInvitationStatus] = useState("");
@@ -114,7 +116,7 @@ const MultiplayerGame: NextPage = () => {
             const senderUserId = invitationData?.sender_user_id; // adjust based on your Supabase schema
             const { data: senderUserData, error: senderUserError } = await supabase
                 .from("users")
-                .select("username, avatar_url")
+                .select("id, username, avatar_url")
                 .eq("id", senderUserId)
                 .single();
 
@@ -122,7 +124,7 @@ const MultiplayerGame: NextPage = () => {
                 console.error("Error fetching sender user data:", senderUserError);
                 return;
             }
-
+            setSenderUserId(senderUserData?.id || "");
             setSenderUsername(senderUserData?.username || "");
             setSenderAvatarUrl(senderUserData?.avatar_url || "");
 
@@ -134,7 +136,7 @@ const MultiplayerGame: NextPage = () => {
                 const receiverUserId = invitationData?.receiver_user_id || "";
                 const { data: receiverUserData, error: receiverUserError } = await supabase
                     .from("users")
-                    .select("username, avatar_url")
+                    .select("id, username, avatar_url")
                     .eq("id", receiverUserId)
                     .single();
 
@@ -160,6 +162,7 @@ const MultiplayerGame: NextPage = () => {
                     return;
                 }
 
+                setReceiverUserId(receiverUserData?.id || "");
                 setReceiverUsername(receiverUserData?.username || "");
                 setReceiverAvatarUrl(receiverUserData?.avatar_url || "");
 
@@ -399,9 +402,51 @@ const MultiplayerGame: NextPage = () => {
         }
 
         // Check if both players have answered by comparing the number of distinct user IDs
-        return data && new Set(data.map((answer) => answer.user_id)).size === 2;
+        const uniqueUserIds = new Set(data.map((answer) => answer.user_id));
+        const bothAnswered = uniqueUserIds.size === 2;
+
+        if (bothAnswered) {
+            await updateScores();
+        }
+
+        return bothAnswered;
     };
 
+    const [scores, setScores] = useState<Record<string, number>>({});
+
+
+    const updateScores = async () => {
+        // Retrieve all answers for the current question
+        const { data: answers, error: answersError } = await supabase
+            .from("GameAnswers")
+            .select("user_id, is_correct")
+            .eq("game_id", gameId)
+            .eq("question_id", currentQuestion.question_id);
+
+        if (answersError) {
+            console.error("Error retrieving answers:", answersError);
+            return;
+        }
+
+        // Calculate and accumulate points for each player
+        const scores: Record<string, number> = {};
+        answers.forEach((answer) => {
+            const userId = answer.user_id;
+            const isCorrect = answer.is_correct[0]; // Access the single boolean value
+
+            scores[userId] = (scores[userId] || 0) + (isCorrect ? 1 : 0);
+        });
+
+        // Update scores in the database or your state as needed
+        // ...
+
+        console.log("Updated Scores:", scores);
+    };
+
+    useEffect(() => {
+        // Call the updateScores function when the component mounts or when certain dependencies change
+        updateScores();
+    }, [currentQuestion, gameId]); // Add other dependencies as needed
 
     const [shuffledOptions, setShuffledOptions] = useState<string[]>([]);
 
@@ -427,7 +472,7 @@ const MultiplayerGame: NextPage = () => {
             // Display loading screen while waiting for the receiver user to connect
             return (
                 <div className="flex justify-center items-center h-screen">
-                    <p className="text-xl">Waiting for the receiver to connect...</p>
+                    <p className="text-xl">Oczekiwanie na drugiego gracza...</p>
                 </div>
             );
         }
@@ -436,7 +481,7 @@ const MultiplayerGame: NextPage = () => {
         if (timeRemaining != "Countdown expired") {
             return (
                 <div className="flex justify-center items-center h-screen">
-                    <p className="text-xl">Get ready! Quiz will start in {timeRemaining} seconds...</p>
+                    <p className="text-xl">Przygotuj się! Twój Quiz zacznie się za {timeRemaining}</p>
                 </div>
             );
         } else {
@@ -450,21 +495,17 @@ const MultiplayerGame: NextPage = () => {
                                     {/* Display user avatars and usernames here */}
                                     <div className="flex justify-between mb-4">
                                         <div className="flex flex-col items-center">
-                                            <img
-                                                src={senderAvatarUrl}
-                                                alt="Sender Avatar"
-                                                className="w-12 h-12 rounded-full mb-2"
-                                            />
-                                            <div className="text-sm font-semibold">{senderUsername}</div>
+                                            <img src={senderAvatarUrl} alt="Sender Avatar" className="w-12 h-12 rounded-full mb-2" />
+                                            <div className="text-sm font-semibold">
+                                                {senderUsername} - {scores[senderUserId] || 0} points
+                                            </div>
                                         </div>
-                                        {invitationStatus === "Accepted" && (
+                                        {invitationStatus === 'Accepted' && (
                                             <div className="flex flex-col items-center">
-                                                <img
-                                                    src={receiverAvatarUrl}
-                                                    alt="Receiver Avatar"
-                                                    className="w-12 h-12 rounded-full mb-2"
-                                                />
-                                                <div className="text-sm font-semibold">{receiverUsername}</div>
+                                                <img src={receiverAvatarUrl} alt="Receiver Avatar" className="w-12 h-12 rounded-full mb-2" />
+                                                <div className="text-sm font-semibold">
+                                                    {receiverUsername} - {scores[receiverUserId] || 0} points
+                                                </div>
                                             </div>
                                         )}
                                     </div>
@@ -527,7 +568,7 @@ const MultiplayerGame: NextPage = () => {
                                     </div>
                                 </>
                             ) : (
-                                <div>Loading...</div>
+                                <div>Ładowanie...</div>
                             )}
                         </div>
                     </div>
@@ -569,3 +610,5 @@ const MultiplayerGame: NextPage = () => {
 
 
 export default MultiplayerGame;
+
+

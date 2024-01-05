@@ -144,9 +144,9 @@ const InviteFriend = () => {
                 </div>
                 <Button
                   onClick={inviteFriend}
-                  className="my-2 mx-4 py-2 px-2 bg-black text-white w-auto flex "
+                  className="my-2 mx-4 py-4 px-2 bg-black text-white w-auto flex "
                 >
-                  Zaproś do znajomych
+                  Zaproś
                 </Button>
               </div>
             </div>
