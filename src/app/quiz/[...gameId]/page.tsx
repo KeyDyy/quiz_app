@@ -13,7 +13,8 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import moment from 'moment';
-
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface CountdownTimerProps {
     startTime: string; // Timestamp in string format, e.g., "2024-01-03T14:23:21.823"
@@ -287,7 +288,7 @@ const MultiplayerGame: NextPage = () => {
                 setTimeRemaining(formattedTime);
             } else {
                 // Countdown reached, you may want to perform some action here
-                setTimeRemaining('Countdown expired');
+                setTimeRemaining('Licznik');
                 clearInterval(intervalId);
             }
         }, 1000);
@@ -306,8 +307,8 @@ const MultiplayerGame: NextPage = () => {
         };
 
         // Start the timer when a new question is loaded and the first timer has expired
-        if (currentQuestion && timeRemaining === 'Countdown expired') {
-            setTimer(10); // Reset timer for each new question
+        if (currentQuestion && timeRemaining === 'Licznik') {
+            setTimer(30); // Reset timer for each new question
             timerInterval = setInterval(decrementTimer, 1000); // Update timer every second
         }
 
@@ -374,6 +375,9 @@ const MultiplayerGame: NextPage = () => {
         }
     };
 
+    const [winnerUsername, setWinnerUsername] = useState<string | null>(null);
+
+
     const handleNextQuestion = async () => {
         const nextQuestionIndex = currentQuestionIndex + 1;
 
@@ -383,7 +387,62 @@ const MultiplayerGame: NextPage = () => {
             setAnswered(false);
             setIsLastQuestion(nextQuestionIndex === questions.length - 1);
         } else {
-            // Handle the end of the quiz, save the final scores, etc.
+
+            await updateScores();
+
+            // Find the winner or check for a draw
+            let winnerUserId: string | null = null;
+
+            const highestScore = Math.max(...Object.values(scores));
+
+            const winners = Object.entries(scores).filter(([userId, score]) => score === highestScore);
+
+            if (winners.length === 1) {
+                // Single winner
+                winnerUserId = winners[0][0];
+            } else {
+                // Draw
+                winnerUserId = 'draw';
+            }
+
+            // Check if a winner already exists in the database
+            const { data: existingWinnerData, error: existingWinnerError } = await supabase
+                .from('MultiplayerGame')
+                .select('winner_user_id')
+                .eq('game_id', gameId);
+
+
+            const existingWinnerUserId = existingWinnerData?.[0]?.winner_user_id;
+
+            if (existingWinnerUserId === null) {
+                // No winner exists in the database, proceed to update
+                await supabase
+                    .from('MultiplayerGame')
+                    .update({
+                        winner_user_id: winnerUserId,
+                    })
+                    .eq('game_id', gameId);
+
+
+            } else {
+                // A winner already exists in the database
+                // Show a toast notification or handle it as needed
+                toast.error('Ten Quiz został już wcześniej ukończony');
+
+            }
+
+            // console.log("sender :", senderUserId)
+            // console.log("receiver :", receiverUserId)
+            // console.log("winner :", winnerUserId)
+
+            if (winnerUserId == senderUserId) {
+                setWinnerUsername(senderUsername);
+            } else if (winnerUserId == receiverUserId) {
+                setWinnerUsername(receiverUsername);
+            } else if (winnerUserId == 'draw') {
+                setWinnerUsername('remis');
+            }
+
             setQuizCompleted(true);
         }
     };
@@ -414,39 +473,54 @@ const MultiplayerGame: NextPage = () => {
 
     const [scores, setScores] = useState<Record<string, number>>({});
 
-
     const updateScores = async () => {
-        // Retrieve all answers for the current question
-        const { data: answers, error: answersError } = await supabase
-            .from("GameAnswers")
-            .select("user_id, is_correct")
-            .eq("game_id", gameId)
-            .eq("question_id", currentQuestion.question_id);
-
-        if (answersError) {
-            console.error("Error retrieving answers:", answersError);
+        // Check if currentQuestion is defined
+        if (!currentQuestion || !currentQuestion.question_id) {
+            console.error('Current question is undefined or has no question_id');
             return;
         }
 
-        // Calculate and accumulate points for each player
-        const scores: Record<string, number> = {};
+        // Retrieve all answers for the current question
+        const { data: answers, error: answersError } = await supabase
+            .from('GameAnswers')
+            .select('*')
+            .eq('game_id', gameId)
+            .eq('question_id', currentQuestion.question_id);
+
+        if (answersError) {
+            console.error('Error retrieving answers:', answersError);
+            return;
+        }
+
+        // Calculate scores for each player and accumulate over time
+        const updatedScores: Record<string, number> = { ...scores };
         answers.forEach((answer) => {
             const userId = answer.user_id;
-            const isCorrect = answer.is_correct[0]; // Access the single boolean value
+            const isCorrect = answer.is_correct[0]; // Directly use the boolean value
 
-            scores[userId] = (scores[userId] || 0) + (isCorrect ? 1 : 0);
+            // Increment the score if the answer is correct
+            updatedScores[userId] = (updatedScores[userId] || 0) + (isCorrect ? 1 : 0);
         });
 
-        // Update scores in the database or your state as needed
-        // ...
+        // Update scores in the state with a callback
+        setScores((prevScores) => {
+            const newScores = { ...prevScores, ...updatedScores };
 
-        console.log("Updated Scores:", scores);
+            // Display scores for the entire game
+            //console.log('Scores:', newScores);
+            return newScores;
+        });
     };
 
+
+    // Ensure currentQuestion is defined before calling updateScores
     useEffect(() => {
-        // Call the updateScores function when the component mounts or when certain dependencies change
-        updateScores();
-    }, [currentQuestion, gameId]); // Add other dependencies as needed
+        if (currentQuestion) {
+            updateScores();
+        }
+    }, [currentQuestion, gameId]);
+
+
 
     const [shuffledOptions, setShuffledOptions] = useState<string[]>([]);
 
@@ -475,10 +549,8 @@ const MultiplayerGame: NextPage = () => {
                     <p className="text-xl">Oczekiwanie na drugiego gracza...</p>
                 </div>
             );
-        }
-
-        // Display countdown timer before starting the quiz
-        if (timeRemaining != "Countdown expired") {
+        }// Display countdown timer before starting the quiz
+        else if (timeRemaining != "Licznik") {
             return (
                 <div className="flex justify-center items-center h-screen">
                     <p className="text-xl">Przygotuj się! Twój Quiz zacznie się za {timeRemaining}</p>
@@ -497,14 +569,14 @@ const MultiplayerGame: NextPage = () => {
                                         <div className="flex flex-col items-center">
                                             <img src={senderAvatarUrl} alt="Sender Avatar" className="w-12 h-12 rounded-full mb-2" />
                                             <div className="text-sm font-semibold">
-                                                {senderUsername} - {scores[senderUserId] || 0} points
+                                                {senderUsername} : {scores[senderUserId] || 0} points
                                             </div>
                                         </div>
                                         {invitationStatus === 'Accepted' && (
                                             <div className="flex flex-col items-center">
                                                 <img src={receiverAvatarUrl} alt="Receiver Avatar" className="w-12 h-12 rounded-full mb-2" />
                                                 <div className="text-sm font-semibold">
-                                                    {receiverUsername} - {scores[receiverUserId] || 0} points
+                                                    {receiverUsername} : {scores[receiverUserId] || 0} points
                                                 </div>
                                             </div>
                                         )}
@@ -584,12 +656,30 @@ const MultiplayerGame: NextPage = () => {
                     <CardHeader>
                         <CardTitle>Quiz ukończony</CardTitle>
                     </CardHeader>
+                    <CardHeader>
+                        <CardTitle>Wygrał {winnerUsername !== null ? winnerUsername : '...'} </CardTitle>
+                    </CardHeader>
                     <CardContent>
                         <CardDescription className="text-black">
-                            Poprawne odpowiedzi: {correctAnswers}
+                            Twój wynik
                         </CardDescription>
                         <CardDescription className="text-black">
-                            Niepoprawne odpowiedzi: {incorrectAnswers}
+                            Poprawne odpowiedzi: {scores[senderUserId]}
+                        </CardDescription>
+                        <CardDescription className="text-black">
+                            Niepoprawne odpowiedzi: {5 - scores[senderUserId]}
+                        </CardDescription>
+                    </CardContent>
+
+                    <CardContent>
+                        <CardDescription className="text-black">
+                            Wynik przeciwnika
+                        </CardDescription>
+                        <CardDescription className="text-black">
+                            Poprawne odpowiedzi: {scores[receiverUserId]}
+                        </CardDescription>
+                        <CardDescription className="text-black">
+                            Niepoprawne odpowiedzi: {5 - scores[receiverUserId]}
                         </CardDescription>
                     </CardContent>
 
