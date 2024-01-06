@@ -95,7 +95,46 @@ function UsernameCheck() {
 
 export default function Home() {
   useUserAuth();
+  const [userStats, setUserStats] = useState({
+    totalWins: 0,
+  });
+  const { user } = useUser();
 
+  useEffect(() => {
+    checkUserStats();
+  }, [user]);
+
+  async function checkUserStats() {
+    try {
+      const { data: statsData, error: statsError } = await supabase
+        .from("MultiplayerGame")
+        .select("winner_user_id");
+
+      if (statsError) {
+        throw statsError;
+      }
+
+      const winsCount: Record<string, number> = statsData.reduce((acc, stat) => {
+        const winnerUserId = stat?.winner_user_id as string;
+
+        if (winnerUserId !== undefined) {
+          acc = acc || {};
+          acc[winnerUserId] = (acc[winnerUserId] || 0) + 1;
+        }
+
+        return acc;
+      }, {} as Record<string, number>);
+
+      const userId = user?.id;
+      const userWins = userId !== undefined ? winsCount[userId] || 0 : 0;
+
+      setUserStats({
+        totalWins: userWins,
+      });
+    } catch (error) {
+      console.error("Error checking username and stats:", error);
+    }
+  }
   return (
     <div className="flex bg-gray-100 dark:bg-gray-900 lg:p-24 md:p-12 p-8 grid lg:grid-cols-2 grid-cols-1 lg:divide-x">
       <div className="flex-1 m-4">
@@ -105,10 +144,13 @@ export default function Home() {
           <UsernameCheck />
         </div>
       </div>
-      <div className="flex-1 m-4 p-8 ">
-        <div className="flex justify-center">
-          <div>
-            Witam
+      <div className="flex-1 m-4 px-auto">
+        <div className="flex justify-between font-bold">
+          <div className="m-auto text-center">
+            <p className="font-bold lg:text-2xl text-xl pb-4">
+              Twoje statystyki gier Multiplayer
+            </p>
+            <p>Wygrane gry {userStats.totalWins}</p>
           </div>
         </div>
       </div>
