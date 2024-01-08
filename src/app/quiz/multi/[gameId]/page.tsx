@@ -386,7 +386,7 @@ const MultiplayerGame: NextPage = () => {
       setIsLastQuestion(nextQuestionIndex === questions.length - 1);
     } else {
       await updateScores();
-
+      updateScores();
       // Find the winner or check for a draw
       let winnerUserId: string | null = null;
 
@@ -443,6 +443,7 @@ const MultiplayerGame: NextPage = () => {
       }
 
       setQuizCompleted(true);
+      updateScores()
     }
   };
 
