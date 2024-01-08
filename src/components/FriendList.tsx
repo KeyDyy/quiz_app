@@ -68,7 +68,22 @@ const FriendList = () => {
           }
         }
       }
-
+      if (user?.id) {
+        const channel = supabase
+          .channel("table-db-changes")
+          .on(
+            "postgres_changes",
+            {
+              event: "*",
+              schema: "public",
+              table: "friends",
+            },
+            (payload) => {
+              fetchFriends(user?.id);
+            }
+          )
+          .subscribe();
+      }
       setFriends(uniqueFriendData);
     } catch (error) {
       console.error("Error fetching friends:", error);
