@@ -432,11 +432,14 @@ const MultiplayerGame: NextPage = () => {
       // console.log("winner :", winnerUserId)
 
       if (winnerUserId == senderUserId) {
-        setWinnerUsername(senderUsername);
+        let senderiswinner = "Wygrał " + senderUsername
+        setWinnerUsername(senderiswinner);
       } else if (winnerUserId == receiverUserId) {
-        setWinnerUsername(receiverUsername);
+        let receiveriswinner = "Wygrał " + receiverUsername
+        setWinnerUsername(receiveriswinner);
       } else if (winnerUserId == "draw") {
-        setWinnerUsername("remis");
+
+        setWinnerUsername("Remis");
       }
 
       setQuizCompleted(true);
@@ -511,7 +514,7 @@ const MultiplayerGame: NextPage = () => {
 
   // Ensure currentQuestion is defined before calling updateScores
   useEffect(() => {
-    if (currentQuestion) {
+    if (currentQuestion || isLastQuestion) {
       updateScores();
     }
   }, [currentQuestion, gameId]);
@@ -592,7 +595,7 @@ const MultiplayerGame: NextPage = () => {
                     <div className="question-image">
                       {/* Display question content (image or video) here */}
                       {currentQuestion.content.endsWith(".jpg") ||
-                      currentQuestion.content.endsWith(".png") ? (
+                        currentQuestion.content.endsWith(".png") ? (
                         <img
                           src={currentQuestion.content}
                           alt="Question"
@@ -618,11 +621,10 @@ const MultiplayerGame: NextPage = () => {
                         key={index}
                         onClick={() => handleSelectAnswer(option)}
                         className={`bg-white m-2 rounded-lg border-2 border-b-4 border-r-4 border-black px-2 py-1 text-xl font-bold transition-all hover:-translate-y-[2px] md:block dark:border-white 
-                            ${
-                              selectedAnswerIndex === index
-                                ? "selected incorrect"
-                                : ""
-                            }
+                            ${selectedAnswerIndex === index
+                            ? "selected incorrect"
+                            : ""
+                          }
                           `}
                         style={{ cursor: "pointer" }}
                       >
@@ -641,9 +643,8 @@ const MultiplayerGame: NextPage = () => {
                       <div
                         className="w-full bg-black transition-all duration-1000 ease-linear"
                         style={{
-                          width: `${
-                            timer === 10 ? "100%" : `${(timer - 1) * 11}%`
-                          }`,
+                          width: `${timer === 10 ? "100%" : `${(timer - 1) * 11}%`
+                            }`,
                         }}
                       ></div>
                     </div>
@@ -668,7 +669,7 @@ const MultiplayerGame: NextPage = () => {
           </CardHeader>
           <CardHeader>
             <CardTitle>
-              Wygrał {winnerUsername !== null ? winnerUsername : "..."}{" "}
+              {winnerUsername !== null ? winnerUsername : "..."}{" "}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -708,8 +709,8 @@ const MultiplayerGame: NextPage = () => {
       {loading
         ? "Loading..."
         : quizCompleted
-        ? renderResults()
-        : renderQuestion()}
+          ? renderResults()
+          : renderQuestion()}
     </div>
   );
 };
