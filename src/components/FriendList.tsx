@@ -230,14 +230,14 @@ const FriendList = () => {
                           <p className="font-bold">{friend.username}</p>
                         </div>
                         <Button
-                          className="p-2 text-white bg-black text-lg mx-1 w-auto"
+                          className="p-2 px-4 text-white bg-black mx-1 text-sm md:text-md lg:text-lg w-auto"
                           onClick={() => acceptFriend(friend.userId)}
                           disabled={friend.status === "Accepted"}
                         >
                           Akceptuj
                         </Button>
                         <Button
-                          className="p-2 text-white bg-black text-lg mx-1 w-auto"
+                          className="p-2 px-4 text-white bg-black mx-1 text-sm md:text-md lg:text-lg w-auto"
                           onClick={() => ignoreFriend(friend.userId)}
                           disabled={friend.status === "Accepted"}
                         >
